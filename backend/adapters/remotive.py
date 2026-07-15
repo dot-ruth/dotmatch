@@ -2,7 +2,7 @@ import re
 
 import httpx
 
-from backend.adapters.common import is_dev_job
+from adapters.common import is_dev_job
 
 
 async def fetch_remotive() -> list[dict]:

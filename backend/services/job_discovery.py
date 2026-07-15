@@ -1,11 +1,11 @@
 import logging
 
-from backend.adapters.remoteok import fetch_remoteok
-from backend.adapters.weworkremotely import fetch_weworkremotely
-from backend.adapters.remotive import fetch_remotive
-from backend.adapters.arbeitnow import fetch_arbeitnow
-from backend.adapters.jobicy import fetch_jobicy
-from backend.services.job_store import job_store
+from adapters.remoteok import fetch_remoteok
+from adapters.weworkremotely import fetch_weworkremotely
+from adapters.remotive import fetch_remotive
+from adapters.arbeitnow import fetch_arbeitnow
+from adapters.jobicy import fetch_jobicy
+from services.job_store import job_store
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routes.jobs import router as jobs_router
+from routes.jobs import router as jobs_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

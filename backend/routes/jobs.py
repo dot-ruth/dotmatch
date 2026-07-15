@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
 
-from backend.models.schemas import Job, PaginatedJobs, DiscoverResult
-from backend.services.job_store import job_store
-from backend.services.job_discovery import discover_all_jobs
+from models.schemas import Job, PaginatedJobs, DiscoverResult
+from services.job_store import job_store
+from services.job_discovery import discover_all_jobs
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
