@@ -122,3 +122,10 @@ html, body {
 .job-description * {
   color: #f3f4f6 !important;
 }
+
+@media (max-width: 640px) {
+  .job-description {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+}

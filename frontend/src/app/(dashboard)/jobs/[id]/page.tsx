@@ -28,26 +28,26 @@ export default function JobDetailPage() {
   }
 
   if (loading) {
-    return <div className="p-8"><div className="animate-pulse h-64 bg-white/15 rounded" /></div>;
+    return <div className="p-4 md:p-8"><div className="animate-pulse h-64 bg-white/15 rounded" /></div>;
   }
 
   if (!job) return null;
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <button onClick={() => router.back()} className="text-blue-300 hover:underline mb-4 text-sm font-medium">
         ← Back to jobs
       </button>
 
-      <div className="bg-white/15 backdrop-blur-sm rounded-lg shadow p-6 border border-white/20">
-        <h1 className="text-2xl font-bold text-white mb-2">{job.title}</h1>
+      <div className="bg-white/15 backdrop-blur-sm rounded-lg shadow p-4 md:p-6 border border-white/20">
+        <h1 className="text-xl md:text-2xl font-bold text-white mb-2">{job.title}</h1>
         <p className="text-white mb-4">
           {job.company?.name || "Unknown Company"}
           {job.location && ` · ${job.location}`}
           {job.remote && " · Remote"}
         </p>
 
-        <div className="flex flex-wrap gap-4 mb-6 text-sm text-white">
+        <div className="flex flex-wrap gap-3 md:gap-4 mb-6 text-sm text-white">
           {job.salary_min && job.salary_max && (
             <span className="text-green-300 font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}</span>
           )}
@@ -81,7 +81,7 @@ export default function JobDetailPage() {
             href={job.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+            className="inline-block w-full sm:w-auto text-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
           >
             Apply on Company Site →
           </a>

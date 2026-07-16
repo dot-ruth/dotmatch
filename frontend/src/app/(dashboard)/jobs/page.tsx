@@ -52,22 +52,22 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Jobs</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Jobs</h1>
           <p className="text-sm text-white mt-1">{total} remote opportunities</p>
         </div>
         <button
           onClick={handleDiscover}
           disabled={discovering}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap"
         >
           {discovering ? "Discovering..." : "Discover Jobs"}
         </button>
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-3 mb-6">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-6">
         <input
           type="text"
           placeholder="Search by title, skill, or company..."
@@ -75,21 +75,23 @@ export default function JobsPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 px-4 py-2 bg-white/15 border border-white/30 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <label className="flex items-center gap-2 text-sm text-white font-medium">
-          <input
-            type="checkbox"
-            checked={remoteOnly}
-            onChange={(e) => setRemoteOnly(e.target.checked)}
-            className="rounded"
-          />
-          Remote only
-        </label>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30"
-        >
-          Search
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-white font-medium">
+            <input
+              type="checkbox"
+              checked={remoteOnly}
+              onChange={(e) => setRemoteOnly(e.target.checked)}
+              className="rounded"
+            />
+            Remote only
+          </label>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30"
+          >
+            Search
+          </button>
+        </div>
       </form>
 
       {loading ? (
@@ -112,10 +114,10 @@ export default function JobsPage() {
                 className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-lg p-4 hover:bg-white/20 cursor-pointer transition-colors"
                 onClick={() => router.push(`/jobs/${job.id}`)}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg text-white">{job.title}</h3>
-                    <p className="text-white text-sm">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base md:text-lg text-white truncate">{job.title}</h3>
+                    <p className="text-white text-sm truncate">
                       {job.company?.name || "Unknown Company"}
                       {job.location && ` · ${job.location}`}
                       {job.remote && " · Remote"}
@@ -143,7 +145,7 @@ export default function JobsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="text-right ml-4">
+                  <div className="shrink-0 self-end sm:self-start">
                     <span className="text-xs text-white bg-white/20 px-2 py-1 rounded">
                       {job.source_type}
                     </span>

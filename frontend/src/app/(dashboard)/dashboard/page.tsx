@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-white/10 rounded w-48" />
           <div className="h-24 bg-white/10 rounded" />
@@ -54,16 +54,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Welcome to DotMatch</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Welcome to DotMatch</h1>
           <p className="text-white mt-1">All remote jobs in one place</p>
         </div>
         <button
           onClick={handleDiscover}
           disabled={discovering}
-          className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+          className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium whitespace-nowrap"
         >
           {discovering ? "Discovering..." : "Discover Jobs"}
         </button>
@@ -73,7 +73,7 @@ export default function DashboardPage() {
         <div className="mb-6 p-3 bg-green-500/30 text-green-200 rounded-lg text-sm font-medium">{discoverMsg}</div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-white/15 backdrop-blur-sm rounded-lg shadow p-5 border border-white/20">
           <p className="text-sm text-gray-200">Total Jobs</p>
           <p className="text-3xl font-bold text-blue-300">{totalJobs}</p>
@@ -91,7 +91,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="bg-white/15 backdrop-blur-sm rounded-lg shadow p-6 border border-white/20">
+      <div className="bg-white/15 backdrop-blur-sm rounded-lg shadow p-4 md:p-6 border border-white/20">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-white">Recent Jobs</h2>
           <button
@@ -108,16 +108,16 @@ export default function DashboardPage() {
             {recentJobs.map((job) => (
               <div
                 key={job.id}
-                className="flex items-center justify-between p-3 bg-white/10 rounded hover:bg-white/15 cursor-pointer transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-white/10 rounded hover:bg-white/15 cursor-pointer transition-colors"
                 onClick={() => router.push(`/jobs/${job.id}`)}
               >
-                <div>
-                  <p className="font-medium text-white">{job.title}</p>
-                  <p className="text-sm text-white">
+                <div className="min-w-0">
+                  <p className="font-medium text-white truncate">{job.title}</p>
+                  <p className="text-sm text-white truncate">
                     {job.company?.name || "Unknown"} · {job.location || "Remote"}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-3 sm:flex-col sm:items-end shrink-0">
                   {job.salary_min && job.salary_max && (
                     <p className="text-sm text-green-300 font-medium">
                       ${(job.salary_min / 1000).toFixed(0)}k - ${(job.salary_max / 1000).toFixed(0)}k
