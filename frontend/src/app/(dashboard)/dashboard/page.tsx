@@ -80,7 +80,7 @@ export default function DashboardPage() {
         </div>
         <div className="bg-gray-100 dark:bg-white/15 backdrop-blur-sm rounded-lg shadow p-5 border border-gray-200 dark:border-white/20">
           <p className="text-sm text-gray-500 dark:text-gray-200">Sources</p>
-          <p className="text-3xl font-bold text-green-600 dark:text-green-300">5</p>
+          <p className="text-3xl font-bold text-green-600 dark:text-green-300">9</p>
         </div>
         <div
           className="bg-gray-100 dark:bg-white/15 backdrop-blur-sm rounded-lg shadow p-5 cursor-pointer hover:bg-gray-200 dark:hover:bg-white/20 transition-colors border border-gray-200 dark:border-white/20"

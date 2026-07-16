@@ -5,6 +5,10 @@ from adapters.weworkremotely import fetch_weworkremotely
 from adapters.remotive import fetch_remotive
 from adapters.arbeitnow import fetch_arbeitnow
 from adapters.jobicy import fetch_jobicy
+from adapters.findwork import fetch_findwork
+from adapters.hn_hiring import fetch_hn_hiring
+from adapters.workingnomads import fetch_workingnomads
+from adapters.devjobsscanner import fetch_devjobsscanner
 from services.job_store import job_store
 
 logger = logging.getLogger(__name__)
@@ -15,6 +19,10 @@ FETCHERS = [
     ("Remotive", fetch_remotive),
     ("Arbeitnow", fetch_arbeitnow),
     ("Jobicy", fetch_jobicy),
+    ("Findwork", fetch_findwork),
+    ("HN_Hiring", fetch_hn_hiring),
+    ("WorkingNomads", fetch_workingnomads),
+    ("DevJobsScanner", fetch_devjobsscanner),
 ]
 
 
