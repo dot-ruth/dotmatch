@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative">
       {/* PlasmaWave background */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 opacity-50">
         <PlasmaWave
           colors={["#A855F7", "#06B6D4"]}
           speed1={0.05}

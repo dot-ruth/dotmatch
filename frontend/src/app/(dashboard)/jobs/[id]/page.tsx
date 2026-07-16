@@ -83,7 +83,7 @@ export default function JobDetailPage() {
             rel="noopener noreferrer"
             className="inline-block w-full sm:w-auto text-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
           >
-            Apply on Company Site →
+            Apply
           </a>
         )}
       </div>
