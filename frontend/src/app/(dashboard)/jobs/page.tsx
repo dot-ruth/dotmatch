@@ -55,8 +55,8 @@ export default function JobsPage() {
     <div className="p-4 md:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white">Jobs</h1>
-          <p className="text-sm text-white mt-1">{total} remote opportunities</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Jobs</h1>
+          <p className="text-sm text-gray-600 dark:text-white mt-1">{total} remote opportunities</p>
         </div>
         <button
           onClick={handleDiscover}
@@ -73,10 +73,10 @@ export default function JobsPage() {
           placeholder="Search by title, skill, or company..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 px-4 py-2 bg-white/15 border border-white/30 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-4 py-2 bg-gray-100 dark:bg-white/15 border border-gray-300 dark:border-white/30 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-white font-medium">
+          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-white font-medium">
             <input
               type="checkbox"
               checked={remoteOnly}
@@ -87,7 +87,7 @@ export default function JobsPage() {
           </label>
           <button
             type="submit"
-            className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30"
+            className="px-4 py-2 bg-gray-200 dark:bg-white/20 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-white/30"
           >
             Search
           </button>
@@ -97,13 +97,13 @@ export default function JobsPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-20 bg-white/15 rounded animate-pulse" />
+            <div key={i} className="h-20 bg-gray-200 dark:bg-white/15 rounded animate-pulse" />
           ))}
         </div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-lg text-white mb-2">No jobs found</p>
-          <p className="text-sm text-gray-300">Click &quot;Discover Jobs&quot; to fetch the latest opportunities</p>
+          <p className="text-lg text-gray-900 dark:text-white mb-2">No jobs found</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300">Click &quot;Discover Jobs&quot; to fetch the latest opportunities</p>
         </div>
       ) : (
         <>
@@ -111,42 +111,42 @@ export default function JobsPage() {
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-lg p-4 hover:bg-white/20 cursor-pointer transition-colors"
+                className="bg-gray-100 dark:bg-white/15 backdrop-blur-sm border border-gray-200 dark:border-white/20 rounded-lg p-4 hover:bg-gray-200 dark:hover:bg-white/20 cursor-pointer transition-colors"
                 onClick={() => router.push(`/jobs/${job.id}`)}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-base md:text-lg text-white truncate">{job.title}</h3>
-                    <p className="text-white text-sm truncate">
+                    <h3 className="font-semibold text-base md:text-lg text-gray-900 dark:text-white truncate">{job.title}</h3>
+                    <p className="text-gray-600 dark:text-white text-sm truncate">
                       {job.company?.name || "Unknown Company"}
                       {job.location && ` · ${job.location}`}
                       {job.remote && " · Remote"}
                     </p>
                     {job.salary_min && job.salary_max && (
-                      <p className="text-green-300 text-sm mt-1 font-medium">
+                      <p className="text-green-600 dark:text-green-300 text-sm mt-1 font-medium">
                         ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}
                       </p>
                     )}
                     {job.description && (
-                      <p className="text-white text-xs mt-1 line-clamp-2">
+                      <p className="text-gray-500 dark:text-white text-xs mt-1 line-clamp-2">
                         {job.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120)}...
                       </p>
                     )}
                     {job.skills && job.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {job.skills.slice(0, 5).map((skill) => (
-                          <span key={skill} className="text-xs bg-blue-500/30 text-white px-2 py-0.5 rounded">
+                          <span key={skill} className="text-xs bg-blue-100 dark:bg-blue-500/30 text-blue-700 dark:text-white px-2 py-0.5 rounded">
                             {skill}
                           </span>
                         ))}
                         {job.skills.length > 5 && (
-                          <span className="text-xs text-white">+{job.skills.length - 5} more</span>
+                          <span className="text-xs text-gray-500 dark:text-white">+{job.skills.length - 5} more</span>
                         )}
                       </div>
                     )}
                   </div>
                   <div className="shrink-0 self-end sm:self-start">
-                    <span className="text-xs text-white bg-white/20 px-2 py-1 rounded">
+                    <span className="text-xs text-gray-600 dark:text-white bg-gray-200 dark:bg-white/20 px-2 py-1 rounded">
                       {job.source_type}
                     </span>
                   </div>
@@ -158,17 +158,17 @@ export default function JobsPage() {
             <button
               disabled={page === 0}
               onClick={() => setPage(page - 1)}
-              className="px-4 py-2 border border-white/30 text-white rounded-lg disabled:opacity-50 hover:bg-white/15"
+              className="px-4 py-2 border border-gray-300 dark:border-white/30 text-gray-900 dark:text-white rounded-lg disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-white/15"
             >
               Previous
             </button>
-            <span className="text-sm text-white font-medium">
+            <span className="text-sm text-gray-700 dark:text-white font-medium">
               Page {page + 1} of {Math.ceil(total / limit) || 1}
             </span>
             <button
               disabled={(page + 1) * limit >= total}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 border border-white/30 text-white rounded-lg disabled:opacity-50 hover:bg-white/15"
+              className="px-4 py-2 border border-gray-300 dark:border-white/30 text-gray-900 dark:text-white rounded-lg disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-white/15"
             >
               Next
             </button>

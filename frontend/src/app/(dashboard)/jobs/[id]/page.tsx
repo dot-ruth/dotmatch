@@ -28,28 +28,28 @@ export default function JobDetailPage() {
   }
 
   if (loading) {
-    return <div className="p-4 md:p-8"><div className="animate-pulse h-64 bg-white/15 rounded" /></div>;
+    return <div className="p-4 md:p-8"><div className="animate-pulse h-64 bg-gray-200 dark:bg-white/15 rounded" /></div>;
   }
 
   if (!job) return null;
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
-      <button onClick={() => router.back()} className="text-blue-300 hover:underline mb-4 text-sm font-medium">
+      <button onClick={() => router.back()} className="text-blue-600 dark:text-blue-300 hover:underline mb-4 text-sm font-medium">
         ← Back to jobs
       </button>
 
-      <div className="bg-white/15 backdrop-blur-sm rounded-lg shadow p-4 md:p-6 border border-white/20">
-        <h1 className="text-xl md:text-2xl font-bold text-white mb-2">{job.title}</h1>
-        <p className="text-white mb-4">
+      <div className="bg-gray-100 dark:bg-white/15 backdrop-blur-sm rounded-lg shadow p-4 md:p-6 border border-gray-200 dark:border-white/20">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">{job.title}</h1>
+        <p className="text-gray-600 dark:text-white mb-4">
           {job.company?.name || "Unknown Company"}
           {job.location && ` · ${job.location}`}
           {job.remote && " · Remote"}
         </p>
 
-        <div className="flex flex-wrap gap-3 md:gap-4 mb-6 text-sm text-white">
+        <div className="flex flex-wrap gap-3 md:gap-4 mb-6 text-sm text-gray-700 dark:text-white">
           {job.salary_min && job.salary_max && (
-            <span className="text-green-300 font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}</span>
+            <span className="text-green-600 dark:text-green-300 font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}</span>
           )}
           {job.experience_level && <span>{job.experience_level}</span>}
           {job.employment_type && <span>{job.employment_type}</span>}
@@ -59,7 +59,7 @@ export default function JobDetailPage() {
         {job.skills && job.skills.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {job.skills.map((skill) => (
-              <span key={skill} className="text-sm bg-blue-500/30 text-blue-200 px-3 py-1 rounded-full">
+              <span key={skill} className="text-sm bg-blue-100 dark:bg-blue-500/30 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full">
                 {skill}
               </span>
             ))}
@@ -68,9 +68,9 @@ export default function JobDetailPage() {
 
         {job.description && (
           <div className="prose prose-invert max-w-none mb-6">
-            <h2 className="text-lg font-semibold text-white mb-2">Description</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h2>
             <div
-              className="text-sm text-white job-description"
+              className="text-sm text-gray-800 dark:text-white job-description"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(job.description) }}
             />
           </div>
