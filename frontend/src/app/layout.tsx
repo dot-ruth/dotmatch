@@ -3,8 +3,49 @@ import { ThemeProvider } from "@/lib/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DotMatch - AI Job Agent",
-  description: "Remote software engineering jobs aggregated from multiple sources",
+  title: {
+    default: "DotMatch — Remote Software Engineering Jobs",
+    template: "%s | DotMatch",
+  },
+  description:
+    "Discover remote software engineering jobs aggregated from 9+ sources. Search, filter, and apply to the best dev jobs — all in one place.",
+  keywords: [
+    "remote jobs",
+    "software engineering",
+    "developer jobs",
+    "remote work",
+    "programming",
+    "tech jobs",
+    "work from home",
+    "job aggregator",
+  ],
+  authors: [{ name: "DotMatch" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "DotMatch",
+    title: "DotMatch — Remote Software Engineering Jobs",
+    description:
+      "Discover remote software engineering jobs aggregated from 9+ sources. Search, filter, and apply to the best dev jobs.",
+    url: "https://dot-match.vercel.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DotMatch — Remote Software Engineering Jobs",
+    description:
+      "Discover remote software engineering jobs aggregated from 9+ sources.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 const themeScript = `

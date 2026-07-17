@@ -35,6 +35,38 @@ export default function JobDetailPage() {
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "JobPosting",
+            title: job.title,
+            description: job.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
+            datePosted: job.posted_at || job.created_at,
+            hiringOrganization: {
+              "@type": "Organization",
+              name: job.company?.name || "Unknown",
+            },
+            jobLocation: {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: job.location || "Remote",
+              },
+            },
+            employmentType: job.employment_type || undefined,
+            jobLocationType: job.remote ? "TELECOMMUTE" : undefined,
+            applicantLocationRequirements: job.remote ? "Worldwide" : undefined,
+            skills: job.skills,
+            identifier: {
+              "@type": "PropertyValue",
+              name: "DotMatch",
+              value: job.id,
+            },
+          }),
+        }}
+      />
       <button onClick={() => router.back()} className="text-blue-600 dark:text-blue-300 hover:underline mb-4 text-sm font-medium">
         ← Back to jobs
       </button>
