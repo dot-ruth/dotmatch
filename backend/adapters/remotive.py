@@ -2,7 +2,7 @@ import re
 
 import httpx
 
-from adapters.common import is_dev_job
+from adapters.common import is_dev_job, parse_iso_date
 
 
 async def fetch_remotive() -> list[dict]:
@@ -34,6 +34,7 @@ async def fetch_remotive() -> list[dict]:
                             "experience_level": None,
                             "employment_type": None,
                             "source_type": "remotive",
+                            "posted_at": parse_iso_date(item.get("publication_date")),
                         })
             except Exception:
                 pass

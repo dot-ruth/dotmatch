@@ -55,6 +55,10 @@ class JobStore:
                 or any(query in s.lower() for s in j.get("skills", []))
             ]
 
+        def _sort_key(j):
+            return j.get("posted_at") or j.get("created_at") or ""
+
+        filtered.sort(key=_sort_key, reverse=True)
         total = len(filtered)
         return filtered[offset:offset + limit], total
 

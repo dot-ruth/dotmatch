@@ -23,6 +23,7 @@ async def fetch_jobicy() -> list[dict]:
                         "experience_level": item.get("jobLevel"),
                         "employment_type": item.get("jobType"),
                         "source_type": "jobicy",
+                        "posted_at": None,
                     })
         except Exception:
             pass

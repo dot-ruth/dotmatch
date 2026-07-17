@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job
+from adapters.common import is_dev_job, parse_unix_timestamp
 
 
 async def fetch_hn_hiring() -> list[dict]:
@@ -75,6 +75,7 @@ async def fetch_hn_hiring() -> list[dict]:
                         "experience_level": None,
                         "employment_type": None,
                         "source_type": "hn_hiring",
+                        "posted_at": parse_unix_timestamp(comment.get("time")),
                     })
                 except Exception:
                     continue

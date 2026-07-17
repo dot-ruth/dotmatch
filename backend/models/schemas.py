@@ -19,6 +19,7 @@ class Job(BaseModel):
     experience_level: str | None
     employment_type: str | None
     source_type: str | None
+    posted_at: str | None
     created_at: str
 
 

@@ -64,6 +64,23 @@ class ApiClient {
 
 export const api = new ApiClient(API_BASE_URL);
 
+export function formatDate(dateStr: string | null): string | null {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffHrs = diffMs / (1000 * 60 * 60);
+    if (diffHrs < 1) return "just now";
+    if (diffHrs < 24) return `${Math.floor(diffHrs)}h ago`;
+    const diffDays = diffHrs / 24;
+    if (diffDays < 7) return `${Math.floor(diffDays)}d ago`;
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  } catch {
+    return null;
+  }
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -78,6 +95,7 @@ export interface Job {
   experience_level: string | null;
   employment_type: string | null;
   source_type: string | null;
+  posted_at: string | null;
   created_at: string;
 }
 

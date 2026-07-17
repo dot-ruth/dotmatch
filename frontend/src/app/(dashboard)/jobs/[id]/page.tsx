@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import DOMPurify from "dompurify";
-import { api, Job } from "@/lib/api";
+import { api, Job, formatDate } from "@/lib/api";
 
 export default function JobDetailPage() {
   const router = useRouter();
@@ -54,6 +54,7 @@ export default function JobDetailPage() {
           {job.experience_level && <span>{job.experience_level}</span>}
           {job.employment_type && <span>{job.employment_type}</span>}
           {job.source_type && <span>via {job.source_type}</span>}
+          {formatDate(job.posted_at) && <span>· Posted {formatDate(job.posted_at)}</span>}
         </div>
 
         {job.skills && job.skills.length > 0 && (

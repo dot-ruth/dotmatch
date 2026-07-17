@@ -35,6 +35,7 @@ async def fetch_findwork() -> list[dict]:
                         "experience_level": None,
                         "employment_type": employment,
                         "source_type": "findwork",
+                        "posted_at": None,
                     })
         except Exception:
             pass

@@ -2,7 +2,7 @@ import re
 
 import httpx
 
-from adapters.common import is_dev_job
+from adapters.common import is_dev_job, parse_rfc2822_date
 
 
 async def fetch_weworkremotely() -> list[dict]:
@@ -18,11 +18,13 @@ async def fetch_weworkremotely() -> list[dict]:
                     title_match = re.search(r"<title><!\[CDATA\[(.*?)\]\]></title>", item)
                     link_match = re.search(r"<link>(.*?)</link>", item)
                     desc_match = re.search(r"<description><!\[CDATA\[(.*?)\]\]></description>", item, re.DOTALL)
+                    pubdate_match = re.search(r"<pubDate>(.*?)</pubDate>", item)
 
                     if title_match and link_match:
                         title = title_match.group(1)
                         if not is_dev_job(title):
                             continue
+                        posted_at = parse_rfc2822_date(pubdate_match.group(1) if pubdate_match else None)
                         jobs.append({
                             "title": title,
                             "company": {"name": "Unknown"},
@@ -36,6 +38,7 @@ async def fetch_weworkremotely() -> list[dict]:
                             "experience_level": None,
                             "employment_type": None,
                             "source_type": "weworkremotely",
+                            "posted_at": posted_at,
                         })
         except Exception:
             pass

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, Job } from "@/lib/api";
+import { api, Job, formatDate } from "@/lib/api";
 
 export default function JobsPage() {
   const router = useRouter();
@@ -145,10 +145,13 @@ export default function JobsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="shrink-0 self-end sm:self-start">
+                  <div className="shrink-0 self-end sm:self-start text-right">
                     <span className="text-xs text-gray-600 dark:text-white bg-gray-200 dark:bg-white/20 px-2 py-1 rounded">
                       {job.source_type}
                     </span>
+                    {formatDate(job.posted_at) && (
+                      <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">{formatDate(job.posted_at)}</p>
+                    )}
                   </div>
                 </div>
               </div>

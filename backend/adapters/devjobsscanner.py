@@ -58,6 +58,7 @@ async def fetch_devjobsscanner() -> list[dict]:
                     "experience_level": None,
                     "employment_type": None,
                     "source_type": "devjobsscanner",
+                    "posted_at": None,
                 })
         except Exception:
             pass

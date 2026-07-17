@@ -39,6 +39,7 @@ async def fetch_workingnomads() -> list[dict]:
                         "experience_level": None,
                         "employment_type": None,
                         "source_type": "workingnomads",
+                        "posted_at": None,
                     })
         except Exception:
             pass
