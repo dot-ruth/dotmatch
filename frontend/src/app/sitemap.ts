@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://frontend-sable-one-60.vercel.app";
+const BASE_URL = "https://dot-match.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();

@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: "https://frontend-sable-one-60.vercel.app/sitemap.xml",
+    sitemap: "https://dot-match.vercel.app/sitemap.xml",
   };
 }
