@@ -10,6 +10,7 @@ from adapters.hn_hiring import fetch_hn_hiring
 from adapters.workingnomads import fetch_workingnomads
 from adapters.devjobsscanner import fetch_devjobsscanner
 from adapters.himalayas import fetch_himalayas
+from adapters.freehire import fetch_freehire
 from services.job_store import job_store
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ FETCHERS = [
     ("WorkingNomads", fetch_workingnomads),
     ("DevJobsScanner", fetch_devjobsscanner),
     ("Himalayas", fetch_himalayas),
+    ("FreeHire", fetch_freehire),
 ]
 
 
