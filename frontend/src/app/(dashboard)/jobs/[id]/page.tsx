@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import DOMPurify from "dompurify";
 import { api, Job, formatDate } from "@/lib/api";
+import dynamic from "next/dynamic";
+
+const FaultyTerminal = dynamic(() => import("@/components/FaultyTerminal"), {
+  ssr: false,
+});
 
 export default function JobDetailPage() {
   const router = useRouter();
@@ -28,13 +33,70 @@ export default function JobDetailPage() {
   }
 
   if (loading) {
-    return <div className="p-4 md:p-8"><div className="animate-pulse h-64 bg-gray-200 dark:bg-white/15 rounded" /></div>;
+    return (
+      <div className="relative p-6 lg:p-10 min-h-screen">
+        {/* FaultyTerminal background */}
+        <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.12 }}>
+          <FaultyTerminal
+            scale={2.5}
+            gridMul={[2, 1]}
+            digitSize={2.5}
+            timeScale={0.3}
+            pause={false}
+            scanlineIntensity={0.4}
+            glitchAmount={0.8}
+            flickerAmount={0.6}
+            noiseAmp={0.2}
+            chromaticAberration={0}
+            dither={0}
+            curvature={0}
+            tint="#1B4332"
+            mouseReact={false}
+            mouseStrength={0}
+            pageLoadAnimation={true}
+            brightness={0.5}
+          />
+        </div>
+        <div className="relative z-10">
+          <div className="animate-pulse space-y-6">
+            <div className="h-5 bg-paper-warm dark:bg-[#1C1917] rounded w-20" />
+            <div className="h-10 bg-paper-warm dark:bg-[#1C1917] rounded w-96" />
+            <div className="h-96 bg-paper-warm dark:bg-[#1C1917] rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!job) return null;
 
   return (
-    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+    <div className="relative p-6 lg:p-10 min-h-screen">
+      {/* FaultyTerminal background */}
+      <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.12 }}>
+        <FaultyTerminal
+          scale={2.5}
+          gridMul={[2, 1]}
+          digitSize={2.5}
+          timeScale={0.3}
+          pause={false}
+          scanlineIntensity={0.4}
+          glitchAmount={0.8}
+          flickerAmount={0.6}
+          noiseAmp={0.2}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0}
+          tint="#1B4332"
+          mouseReact={false}
+          mouseStrength={0}
+          pageLoadAnimation={true}
+          brightness={0.5}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-3xl">
+      {/* Structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -67,59 +129,116 @@ export default function JobDetailPage() {
           }),
         }}
       />
-      <button onClick={() => router.back()} className="text-blue-600 dark:text-blue-300 hover:underline mb-4 text-sm font-medium">
-        ← Back to jobs
+
+      {/* Back */}
+      <button
+        onClick={() => router.back()}
+        className="inline-flex items-center gap-2 text-sm text-[#78716C] dark:text-[#A8A29E] hover:text-ink dark:hover:text-[#F5F5F4] mb-8 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+        </svg>
+        Back to jobs
       </button>
 
-      <div className="bg-gray-100 dark:bg-white/15 backdrop-blur-sm rounded-lg shadow p-4 md:p-6 border border-gray-200 dark:border-white/20">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">{job.title}</h1>
-        <p className="text-gray-600 dark:text-white mb-4">
-          {job.company?.name || "Unknown Company"}
-          {job.location && ` · ${job.location}`}
-          {job.remote && " · Remote"}
+      {/* Header */}
+      <header className="mb-8">
+        <h1 className="font-display text-2xl lg:text-3xl font-bold text-ink dark:text-[#F5F5F4] mb-2">
+          {job.title}
+        </h1>
+        <p className="text-[#78716C] dark:text-[#A8A29E]">
+          <span className="text-forest dark:text-[#40916C] font-medium">
+            {job.company?.name || "Unknown Company"}
+          </span>
+          {job.location && <span className="text-[#A8A29E]"> · {job.location}</span>}
+          {job.remote && <span className="text-forest/70 dark:text-[#40916C]/70"> · Remote</span>}
         </p>
+      </header>
 
-        <div className="flex flex-wrap gap-3 md:gap-4 mb-6 text-sm text-gray-700 dark:text-white">
-          {job.salary_min && job.salary_max && (
-            <span className="text-green-600 dark:text-green-300 font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}</span>
-          )}
-          {job.experience_level && <span>{job.experience_level}</span>}
-          {job.employment_type && <span>{job.employment_type}</span>}
-          {job.source_type && <span>via {job.source_type}</span>}
-          {formatDate(job.posted_at) && <span>· Posted {formatDate(job.posted_at)}</span>}
-        </div>
+      {/* Meta */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {job.salary_min && job.salary_max && (
+          <Badge variant="ember">
+            ${job.salary_min.toLocaleString()} – ${job.salary_max.toLocaleString()}
+          </Badge>
+        )}
+        {job.experience_level && <Badge>{job.experience_level}</Badge>}
+        {job.employment_type && <Badge>{job.employment_type}</Badge>}
+        {job.source_type && <Badge>via {job.source_type}</Badge>}
+        {formatDate(job.posted_at) && <Badge>Posted {formatDate(job.posted_at)}</Badge>}
+      </div>
 
-        {job.skills && job.skills.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+      {/* Skills */}
+      {job.skills && job.skills.length > 0 && (
+        <div className="mb-8">
+          <h3 className="text-xs font-mono text-[#A8A29E] uppercase tracking-wider mb-3">
+            Skills
+          </h3>
+          <div className="flex flex-wrap gap-2">
             {job.skills.map((skill) => (
-              <span key={skill} className="text-sm bg-blue-100 dark:bg-blue-500/30 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full">
+              <span
+                key={skill}
+                className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-mono bg-paper-warm dark:bg-[#1C1917] border border-paper-deep dark:border-[#292524] text-[#78716C] dark:text-[#A8A29E]"
+              >
                 {skill}
               </span>
             ))}
           </div>
-        )}
+        </div>
+      )}
 
-        {job.description && (
-          <div className="prose prose-invert max-w-none mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h2>
+      {/* Description */}
+      {job.description && (
+        <div className="mb-10">
+          <h3 className="text-xs font-mono text-[#A8A29E] uppercase tracking-wider mb-4">
+            Description
+          </h3>
+          <div className="rounded-xl bg-paper-warm dark:bg-[#1C1917] border border-paper-deep dark:border-[#292524] p-6 lg:p-8">
             <div
-              className="text-sm text-gray-800 dark:text-white job-description"
+              className="text-sm job-description"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(job.description) }}
             />
           </div>
-        )}
+        </div>
+      )}
 
-        {job.url && (
+      {/* Apply */}
+      {job.url && (
+        <div className="sticky bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-paper via-paper to-transparent dark:from-[#0C0A09] dark:via-[#0C0A09] dark:to-transparent">
           <a
             href={job.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block w-full sm:w-auto text-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+            className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3.5 bg-ember text-paper rounded-lg hover:bg-ember-light font-medium transition-colors"
           >
-            Apply
+            Apply for this position
+            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
           </a>
-        )}
+        </div>
+      )}
       </div>
     </div>
+  );
+}
+
+function Badge({
+  children,
+  variant = "default",
+}: {
+  children: React.ReactNode;
+  variant?: "default" | "ember";
+}) {
+  return (
+    <span
+      className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-mono ${
+        variant === "ember"
+          ? "bg-ember/10 text-ember dark:bg-[#FB923C]/10 dark:text-[#FB923C]"
+          : "bg-paper-warm dark:bg-[#1C1917] border border-paper-deep dark:border-[#292524] text-[#78716C] dark:text-[#A8A29E]"
+      }`}
+    >
+      {children}
+    </span>
   );
 }
