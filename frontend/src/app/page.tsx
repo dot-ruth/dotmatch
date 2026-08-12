@@ -41,7 +41,7 @@ export default function HomePage() {
           <span className="text-blue-600 dark:text-blue-400">One place.</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
-          DotMatch aggregates software engineering jobs from 9+ boards so you
+          DotMatch aggregates software engineering jobs from 14+ boards so you
           don&apos;t have to check them all. Search, filter, and apply — instantly.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -67,14 +67,14 @@ export default function HomePage() {
             Why DotMatch?
           </h2>
           <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-            Job hunting shouldn&apos;t mean checking 9 different tabs every morning.
+            Job hunting shouldn&apos;t mean checking 14 different tabs every morning.
             We built DotMatch so you can focus on applying, not searching.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<LinkIcon />}
               title="9 Sources, 1 Search"
-              description="RemoteOK, WeWorkRemotely, Remotive, Arbeitnow, Jobicy, Findwork, HN Who's Hiring, Working Nomads, and DevJobsScanner — all searchable at once."
+              description="RemoteOK, WeWorkRemotely, Remotive, Arbeitnow, Jobicy, Findwork, HN Who's Hiring, Working Nomads, DevJobsScanner, Himalayas, FreeHire, RemoteJobsOrg, JobsBase, and Greenhouse — all searchable at once."
             />
             <FeatureCard
               icon={<ClockIcon />}
@@ -115,7 +115,7 @@ export default function HomePage() {
             <Step
               number={1}
               title="We collect"
-              description="DotMatch pulls the latest job listings from 9 different remote job boards every time you hit Discover."
+              description="DotMatch pulls the latest job listings from 14 different remote job boards every time you hit Discover."
             />
             <Step
               number={2}
