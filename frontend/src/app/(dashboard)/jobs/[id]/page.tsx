@@ -4,11 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import DOMPurify from "dompurify";
 import { api, Job, formatDate } from "@/lib/api";
-import dynamic from "next/dynamic";
-
-const FaultyTerminal = dynamic(() => import("@/components/FaultyTerminal"), {
-  ssr: false,
-});
 
 export default function JobDetailPage() {
   const router = useRouter();
@@ -35,28 +30,6 @@ export default function JobDetailPage() {
   if (loading) {
     return (
       <div className="relative p-6 lg:p-10 min-h-screen">
-        {/* FaultyTerminal background */}
-        <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.12 }}>
-          <FaultyTerminal
-            scale={2.5}
-            gridMul={[2, 1]}
-            digitSize={2.5}
-            timeScale={0.3}
-            pause={false}
-            scanlineIntensity={0.4}
-            glitchAmount={0.8}
-            flickerAmount={0.6}
-            noiseAmp={0.2}
-            chromaticAberration={0}
-            dither={0}
-            curvature={0}
-            tint="#1B4332"
-            mouseReact={false}
-            mouseStrength={0}
-            pageLoadAnimation={true}
-            brightness={0.5}
-          />
-        </div>
         <div className="relative z-10">
           <div className="animate-pulse space-y-6">
             <div className="h-5 bg-paper-warm dark:bg-[#1C1917] rounded w-20" />
@@ -72,29 +45,6 @@ export default function JobDetailPage() {
 
   return (
     <div className="relative p-6 lg:p-10 min-h-screen">
-      {/* FaultyTerminal background */}
-      <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.12 }}>
-        <FaultyTerminal
-          scale={2.5}
-          gridMul={[2, 1]}
-          digitSize={2.5}
-          timeScale={0.3}
-          pause={false}
-          scanlineIntensity={0.4}
-          glitchAmount={0.8}
-          flickerAmount={0.6}
-          noiseAmp={0.2}
-          chromaticAberration={0}
-          dither={0}
-          curvature={0}
-          tint="#1B4332"
-          mouseReact={false}
-          mouseStrength={0}
-          pageLoadAnimation={true}
-          brightness={0.5}
-        />
-      </div>
-
       <div className="relative z-10 max-w-3xl">
       {/* Structured data */}
       <script

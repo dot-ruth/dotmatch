@@ -10,6 +10,7 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 @router.get("/", response_model=PaginatedJobs)
 async def list_jobs(
     remote_only: bool | None = Query(default=None, description="Filter remote jobs only"),
+    worldwide_only: bool | None = Query(default=None, description="Filter jobs open worldwide (work from Ethiopia)"),
     search_query: str | None = Query(default=None, description="Search by title, company, or skills"),
     offset: int = Query(default=0, ge=0, description="Number of records to skip"),
     limit: int = Query(default=20, ge=1, le=100, description="Max records to return"),
@@ -17,6 +18,7 @@ async def list_jobs(
     """List and filter jobs."""
     items, total = job_store.search(
         remote_only=remote_only,
+        worldwide_only=worldwide_only,
         search_query=search_query,
         offset=offset,
         limit=limit,

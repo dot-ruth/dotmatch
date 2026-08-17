@@ -3,18 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, Job, formatDate } from "@/lib/api";
-import dynamic from "next/dynamic";
-
-const FaultyTerminal = dynamic(() => import("@/components/FaultyTerminal"), {
-  ssr: false,
-});
 
 export default function JobsPage() {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [remoteOnly, setRemoteOnly] = useState(false);
+  const [worldwideOnly, setWorldwideOnly] = useState(true);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [discovering, setDiscovering] = useState(false);
@@ -22,13 +17,13 @@ export default function JobsPage() {
 
   useEffect(() => {
     loadJobs();
-  }, [page, remoteOnly]);
+  }, [page, worldwideOnly]);
 
   async function loadJobs() {
     setLoading(true);
     try {
       const params: Record<string, unknown> = { offset: page * limit, limit };
-      if (remoteOnly) params.remote_only = true;
+      if (worldwideOnly) params.worldwide_only = true;
       if (searchQuery) params.search_query = searchQuery;
       const res = await api.getJobs(params);
       setJobs(res.items || []);
@@ -58,29 +53,6 @@ export default function JobsPage() {
 
   return (
     <div className="relative p-6 lg:p-10 min-h-screen">
-      {/* FaultyTerminal background */}
-      <div className="fixed inset-0 z-0 pointer-events-none" style={{ opacity: 0.12 }}>
-        <FaultyTerminal
-          scale={2.5}
-          gridMul={[2, 1]}
-          digitSize={2.5}
-          timeScale={0.3}
-          pause={false}
-          scanlineIntensity={0.4}
-          glitchAmount={0.8}
-          flickerAmount={0.6}
-          noiseAmp={0.2}
-          chromaticAberration={0}
-          dither={0}
-          curvature={0}
-          tint="#1B4332"
-          mouseReact={false}
-          mouseStrength={0}
-          pageLoadAnimation={true}
-          brightness={0.5}
-        />
-      </div>
-
       <div className="relative z-10">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -89,7 +61,7 @@ export default function JobsPage() {
             Jobs
           </h1>
           <p className="text-sm text-[#78716C] dark:text-[#A8A29E]">
-            <span className="font-mono text-forest dark:text-[#40916C]">{total}</span> remote opportunities
+            <span className="font-mono text-forest dark:text-[#40916C]">{total}</span> software engineering roles worldwide
           </p>
         </div>
         <button
@@ -111,7 +83,7 @@ export default function JobsPage() {
         </button>
       </div>
 
-      {/* Search */}
+      {/* Search & Filters */}
       <form onSubmit={handleSearch} className="mb-8">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -135,11 +107,11 @@ export default function JobsPage() {
             <label className="flex items-center gap-2 px-4 py-3 bg-paper-warm dark:bg-[#1C1917] border border-paper-deep dark:border-[#292524] rounded-lg cursor-pointer hover:bg-paper-deep dark:hover:bg-[#292524] transition-colors">
               <input
                 type="checkbox"
-                checked={remoteOnly}
-                onChange={(e) => setRemoteOnly(e.target.checked)}
+                checked={worldwideOnly}
+                onChange={(e) => { setWorldwideOnly(e.target.checked); setPage(0); }}
                 className="w-4 h-4 rounded border-[#D6D3D1] dark:border-[#44403C] text-forest dark:text-[#40916C]"
               />
-              <span className="text-sm text-[#78716C] dark:text-[#A8A29E]">Remote only</span>
+              <span className="text-sm text-[#78716C] dark:text-[#A8A29E] whitespace-nowrap">Remote from Ethiopia</span>
             </label>
             <button
               type="submit"

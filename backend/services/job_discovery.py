@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from adapters.remoteok import fetch_remoteok
@@ -6,8 +7,6 @@ from adapters.remotive import fetch_remotive
 from adapters.arbeitnow import fetch_arbeitnow
 from adapters.jobicy import fetch_jobicy
 from adapters.findwork import fetch_findwork
-from adapters.hn_hiring import fetch_hn_hiring
-from adapters.workingnomads import fetch_workingnomads
 from adapters.devjobsscanner import fetch_devjobsscanner
 from adapters.himalayas import fetch_himalayas
 from adapters.freehire import fetch_freehire
@@ -25,8 +24,6 @@ FETCHERS = [
     ("Arbeitnow", fetch_arbeitnow),
     ("Jobicy", fetch_jobicy),
     ("Findwork", fetch_findwork),
-    ("HN_Hiring", fetch_hn_hiring),
-    ("WorkingNomads", fetch_workingnomads),
     ("DevJobsScanner", fetch_devjobsscanner),
     ("Himalayas", fetch_himalayas),
     ("FreeHire", fetch_freehire),
@@ -35,20 +32,32 @@ FETCHERS = [
     ("Greenhouse", fetch_greenhouse),
 ]
 
+MAX_CONCURRENT = 5
+
 
 async def discover_all_jobs() -> dict:
-    """Discover jobs from all sources and store them."""
+    """Discover jobs from all sources in parallel and store them."""
     all_fetched = []
     errors = []
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT)
 
-    for name, fetcher in FETCHERS:
-        try:
-            fetched = await fetcher()
-            all_fetched.extend(fetched)
-            logger.info("Fetched %d jobs from %s", len(fetched), name)
-        except Exception as e:
-            errors.append(f"{name}: {str(e)}")
-            logger.error("Failed to fetch from %s: %s", name, e)
+    async def _fetch_one(name: str, fetcher):
+        async with semaphore:
+            try:
+                fetched = await fetcher()
+                logger.info("Fetched %d jobs from %s", len(fetched), name)
+                return name, fetched, None
+            except Exception as e:
+                logger.error("Failed to fetch from %s: %s", name, e)
+                return name, [], str(e)
+
+    tasks = [_fetch_one(name, fetcher) for name, fetcher in FETCHERS]
+    results = await asyncio.gather(*tasks)
+
+    for name, fetched, error in results:
+        if error:
+            errors.append(f"{name}: {error}")
+        all_fetched.extend(fetched)
 
     new_count = job_store.add_jobs(all_fetched)
 
