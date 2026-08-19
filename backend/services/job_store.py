@@ -38,6 +38,7 @@ class JobStore:
         self._counter = 0
         self._keys: set[str] = set()
         self._id_index: dict[str, dict] = {}
+        self._resume: dict | None = None
 
     def add_jobs(self, jobs: list[dict], skip_ghosts: bool = True) -> int:
         """Add jobs to store, deduplicating by title+company.
@@ -105,6 +106,32 @@ class JobStore:
         filtered.sort(key=_sort_key, reverse=True)
         total = len(filtered)
         return filtered[offset:offset + limit], total
+
+    def store_resume(
+        self,
+        filename: str,
+        raw_text: str,
+        skills: list[str],
+        job_titles: list[str],
+        experience_years: float | None,
+        education: list[str],
+    ) -> dict:
+        """Store parsed resume data."""
+        self._resume = {
+            "id": "1",
+            "filename": filename,
+            "raw_text": raw_text,
+            "skills": skills,
+            "job_titles": job_titles,
+            "experience_years": experience_years,
+            "education": education,
+            "created_at": datetime.now().isoformat(),
+        }
+        return self._resume
+
+    def get_resume(self) -> dict | None:
+        """Get the stored resume profile."""
+        return self._resume
 
 
 job_store = JobStore()
