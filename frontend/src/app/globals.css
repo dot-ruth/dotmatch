@@ -59,6 +59,18 @@ html.dark *:focus-visible {
   outline-color: #40916C;
 }
 
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(27, 67, 50, 0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+html.dark .shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(64, 145, 108, 0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+}
+
 /* Job description */
 .job-description p {
   margin-bottom: 1rem;
@@ -107,7 +119,7 @@ html.dark .job-description strong {
 }
 
 html.dark .job-description a {
-  color: #6EE7B7;
+  color: #40916C;
 }
 
 .job-description h1,

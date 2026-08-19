@@ -6,11 +6,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#1C1917",
-        paper: {
+        ink: {
+          DEFAULT: "#1C1917",
+          dark: "#F5F5F4",
+        },
+        muted: {
+          DEFAULT: "#78716C",
+          dark: "#A8A29E",
+        },
+        subtle: {
+          DEFAULT: "#A8A29E",
+          dark: "#78716C",
+        },
+        surface: {
           DEFAULT: "#FAF8F5",
           warm: "#F5F0EB",
           deep: "#EDE8E1",
+          dark: {
+            DEFAULT: "#0C0A09",
+            warm: "#1C1917",
+            deep: "#292524",
+          },
+        },
+        border: {
+          DEFAULT: "#EDE8E1",
+          dark: "#292524",
         },
         forest: {
           DEFAULT: "#1B4332",
@@ -20,6 +40,7 @@ const config: Config = {
         ember: {
           DEFAULT: "#C2410C",
           light: "#EA580C",
+          muted: "#FB923C",
         },
       },
       fontFamily: {
@@ -34,11 +55,21 @@ const config: Config = {
       },
       animation: {
         marquee: "marquee 8s linear infinite",
+        "fade-in": "fadeIn 0.3s ease-out",
+        shimmer: "shimmer 2s infinite",
       },
       keyframes: {
         marquee: {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-33.333%)" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
       },
     },
