@@ -9,7 +9,10 @@ from .himalayas import fetch_himalayas
 from .freehire import fetch_freehire
 from .remotejobs_org import fetch_remotejobs_org
 from .jobsbase import fetch_jobsbase
-from .greenhouse import fetch_greenhouse
+from .lever import fetch_lever
+from .ashby import fetch_ashby
+from .torre import fetch_torre
+from .hn_hiring import fetch_hn_hiring
 
 __all__ = [
     "fetch_remoteok",
@@ -23,5 +26,8 @@ __all__ = [
     "fetch_freehire",
     "fetch_remotejobs_org",
     "fetch_jobsbase",
-    "fetch_greenhouse",
+    "fetch_lever",
+    "fetch_ashby",
+    "fetch_torre",
+    "fetch_hn_hiring",
 ]
