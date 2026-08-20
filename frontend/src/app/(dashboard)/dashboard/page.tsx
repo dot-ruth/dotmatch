@@ -10,7 +10,7 @@ import Button from "@/components/Button";
 const SOURCES = [
   "RemoteOK", "WeWorkRemotely", "Remotive", "Arbeitnow",
   "Jobicy", "Findwork", "DevJobsScanner", "Himalayas",
-  "FreeHire", "RemoteJobsOrg", "JobsBase",
+  "FreeHire", "RemoteJobsOrg", "JobsBase", "Lever", "Ashby", "Torre", "HN Hiring",
 ];
 
 export default function DashboardPage() {
@@ -48,7 +48,7 @@ export default function DashboardPage() {
       const result = await api.discoverJobs();
       setDiscoverMsg(`Found ${result.new_jobs} new jobs from ${result.sources_checked} sources`);
       setLastRefresh(new Date().toLocaleTimeString());
-      loadData();
+      await loadData();
     } catch {
       setDiscoverMsg("Discovery failed");
     } finally {
