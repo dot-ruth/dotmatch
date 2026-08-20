@@ -48,7 +48,7 @@ export default function JobDetailPage() {
 
   return (
     <div className="relative p-6 lg:p-10 min-h-screen animate-fade-in">
-      <div className="relative z-10 max-w-3xl">
+      <div className="relative z-10">
       {/* Structured data */}
       <script
         type="application/ld+json"
@@ -76,7 +76,7 @@ export default function JobDetailPage() {
             skills: job.skills,
             identifier: {
               "@type": "PropertyValue",
-              name: "DotMatch",
+              name: "Dot Match",
               value: job.id,
             },
           }),
@@ -108,8 +108,8 @@ export default function JobDetailPage() {
         </p>
       </header>
 
-      {/* Meta */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      {/* Meta + Apply */}
+      <div className="flex flex-wrap items-center gap-3 mb-8">
         {job.salary_min && job.salary_max && (
           <Badge variant="ember">
             ${job.salary_min.toLocaleString()} – ${job.salary_max.toLocaleString()}
@@ -119,6 +119,19 @@ export default function JobDetailPage() {
         {job.employment_type && <Badge>{job.employment_type}</Badge>}
         {job.source_type && <Badge variant="muted">via {job.source_type}</Badge>}
         {formatDate(job.posted_at) && <Badge variant="muted">Posted {formatDate(job.posted_at)}</Badge>}
+        {job.url && (
+          <a
+            href={job.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2 bg-forest text-white rounded-lg hover:bg-forest/90 text-sm font-medium transition-all duration-200 ml-auto"
+          >
+            Apply
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        )}
       </div>
 
       {/* Skills */}
@@ -150,22 +163,6 @@ export default function JobDetailPage() {
         </div>
       )}
 
-      {/* Apply */}
-      {job.url && (
-        <div className="sticky bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-surface via-surface to-transparent dark:from-surface-dark dark:via-surface-dark dark:to-transparent">
-          <a
-            href={job.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3.5 bg-ember text-white rounded-xl hover:bg-ember-light font-medium transition-all duration-200 hover:shadow-card-hover"
-          >
-            Apply for this position
-            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-        </div>
-      )}
       </div>
     </div>
   );
