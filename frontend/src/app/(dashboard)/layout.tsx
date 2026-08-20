@@ -14,13 +14,14 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-surface dark:bg-surface-dark">
       {/* Mobile top bar */}
       <header className="md:hidden flex items-center justify-between px-5 py-4 border-b border-border dark:border-border-dark bg-surface dark:bg-surface-dark sticky top-0 z-30">
         <Link href="/" className="font-display text-base font-semibold text-ink dark:text-ink-dark">
-          DotMatch
+          Dot Match
         </Link>
         <div className="flex items-center gap-3">
           <ThemeToggle />
@@ -66,42 +67,77 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-56 flex-col border-r border-border dark:border-border-dark shrink-0">
-        <div className="p-5 border-b border-border dark:border-border-dark">
-          <Link href="/" className="font-display text-base font-semibold text-ink dark:text-ink-dark">
-            DotMatch
-          </Link>
+      <aside
+        className={`hidden md:flex flex-col border-r border-border dark:border-border-dark shrink-0 transition-all duration-300 ${
+          collapsed ? "w-16" : "w-56"
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border dark:border-border-dark h-14">
+          {!collapsed ? (
+            <Link href="/" className="pl-5 font-display text-base font-semibold text-ink dark:text-ink-dark">
+              Dot Match
+            </Link>
+          ) : (
+            <div className="w-2.5" />
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 rounded-lg hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-colors duration-200"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <svg className="w-4 h-4 text-muted dark:text-muted-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {collapsed ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              )}
+            </svg>
+          </button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                pathname === item.href
-                  ? "bg-forest/10 text-forest dark:bg-forest-muted/10 dark:text-forest-muted"
-                  : "text-muted dark:text-muted-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep"
-              }`}
-            >
-              <svg className="w-4 h-4" fill={pathname === item.href ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
-              </svg>
-              {item.label}
-            </Link>
-          ))}
+        {/* Nav items */}
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                title={collapsed ? item.label : undefined}
+                className={`flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"
+                } ${
+                  isActive
+                    ? "bg-forest/10 text-forest dark:bg-forest-muted/10 dark:text-forest-muted"
+                    : "text-muted dark:text-muted-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep"
+                }`}
+              >
+                <svg className="w-4 h-4 shrink-0" fill={isActive ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                </svg>
+                {!collapsed && <span>{item.label}</span>}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="p-4 border-t border-border dark:border-border-dark">
-          <div className="flex items-center justify-between">
-            <ThemeToggle />
-            <span className="text-xs font-mono text-subtle dark:text-subtle-dark">v1.0</span>
-          </div>
+        {/* Footer */}
+        <div className="border-t border-border dark:border-border-dark p-3">
+          <span className="text-xs font-mono text-subtle dark:text-subtle-dark">v1.0</span>
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Top bar — visible on all pages */}
+        <header className="hidden md:flex items-center justify-end px-6 py-3 border-b border-border dark:border-border-dark bg-surface dark:bg-surface-dark">
+          <ThemeToggle showLabel />
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-auto">{children}</main>
+      </div>
     </div>
   );
 }
