@@ -4,11 +4,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "DotMatch — Remote Software Engineering Jobs",
-    template: "%s | DotMatch",
+    default: "Dot Match — Remote Software Engineering Jobs",
+    template: "%s | Dot Match",
   },
   description:
-    "Discover remote software engineering jobs aggregated from 11+ sources. Search, filter, and apply to the best dev jobs — all in one place.",
+    "Discover remote software engineering jobs aggregated from 14 sources. Search, filter, and apply to the best dev jobs — all in one place.",
   keywords: [
     "remote jobs",
     "software engineering",
@@ -19,21 +19,21 @@ export const metadata: Metadata = {
     "work from home",
     "job aggregator",
   ],
-  authors: [{ name: "DotMatch" }],
+  authors: [{ name: "Dot Match" }],
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "DotMatch",
-    title: "DotMatch — Remote Software Engineering Jobs",
+    siteName: "Dot Match",
+    title: "Dot Match — Remote Software Engineering Jobs",
     description:
-      "Discover remote software engineering jobs aggregated from 11+ sources. Search, filter, and apply to the best dev jobs.",
+      "Discover remote software engineering jobs aggregated from 14 sources. Search, filter, and apply to the best dev jobs.",
     url: "https://dot-match.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
-    title: "DotMatch — Remote Software Engineering Jobs",
+    title: "Dot Match — Remote Software Engineering Jobs",
     description:
-      "Discover remote software engineering jobs aggregated from 11+ sources.",
+      "Discover remote software engineering jobs aggregated from 14 sources.",
   },
   robots: {
     index: true,
