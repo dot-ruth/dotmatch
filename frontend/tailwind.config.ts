@@ -38,9 +38,9 @@ const config: Config = {
           muted: "#40916C",
         },
         ember: {
-          DEFAULT: "#C2410C",
-          light: "#EA580C",
-          muted: "#FB923C",
+          DEFAULT: "#92400E",
+          light: "#B45309",
+          muted: "#D97706",
         },
       },
       fontFamily: {

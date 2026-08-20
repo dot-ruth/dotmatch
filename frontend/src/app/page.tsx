@@ -21,7 +21,6 @@ const jobBoards = [
   "FreeHire",
   "RemoteJobs.org",
   "JobsBase",
-  "Greenhouse",
 ];
 
 const features = [
@@ -108,7 +107,7 @@ export default function HomePage() {
             {/* Left - Text */}
             <div>
               <p className="text-sm font-mono text-forest dark:text-forest-muted tracking-wider uppercase mb-6">
-                12 sources, one search
+                11 sources, one search
               </p>
               <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-ink dark:text-ink-dark leading-[1.05] mb-8">
                 Every remote
@@ -118,7 +117,7 @@ export default function HomePage() {
                 <span className="text-forest dark:text-forest-muted">One place.</span>
               </h1>
               <p className="text-lg text-muted dark:text-muted-dark max-w-md mb-10 leading-relaxed">
-                DotMatch aggregates software engineering jobs from 12 boards so you
+                DotMatch aggregates software engineering jobs from 11 boards so you
                 don&apos;t have to check them all. Upload your resume for personalized matches.
               </p>
               <div className="flex flex-wrap gap-3">
@@ -176,7 +175,7 @@ export default function HomePage() {
 
                 {/* Footer */}
                 <div className="mt-5 pt-4 border-t border-border dark:border-border-dark flex items-center justify-between">
-                  <span className="text-xs font-mono text-subtle dark:text-subtle-dark">12 sources connected</span>
+                  <span className="text-xs font-mono text-subtle dark:text-subtle-dark">11 sources connected</span>
                   <span className="text-xs font-mono text-forest dark:text-forest-muted">live</span>
                 </div>
               </div>
@@ -209,7 +208,7 @@ export default function HomePage() {
                 Why DotMatch
               </p>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-ink dark:text-ink-dark leading-tight sticky top-8">
-                Job hunting shouldn&apos;t mean checking 12 tabs every morning.
+                Job hunting shouldn&apos;t mean checking 11 tabs every morning.
               </h2>
             </div>
 

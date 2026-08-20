@@ -10,7 +10,7 @@ import Button from "@/components/Button";
 const SOURCES = [
   "RemoteOK", "WeWorkRemotely", "Remotive", "Arbeitnow",
   "Jobicy", "Findwork", "DevJobsScanner", "Himalayas",
-  "FreeHire", "RemoteJobsOrg", "JobsBase", "Greenhouse",
+  "FreeHire", "RemoteJobsOrg", "JobsBase",
 ];
 
 export default function DashboardPage() {

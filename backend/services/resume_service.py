@@ -111,6 +111,7 @@ def parse_resume_text(text: str) -> dict:
 def calculate_match_score(job: dict, resume: dict) -> tuple[int, list[str]]:
     """Calculate how well a job matches the resume profile.
 
+    Strict matching: requires meaningful skill overlap and title relevance.
     Returns (score, matched_skills).
     """
     resume_skills = set(s.lower() for s in resume.get("skills", []))
@@ -123,26 +124,40 @@ def calculate_match_score(job: dict, resume: dict) -> tuple[int, list[str]]:
         if skill in job_skills or skill in job_title or skill in job_desc:
             matched.append(skill)
 
-    if not resume_skills:
+    if not resume_skills or len(matched) == 0:
         return 0, []
 
-    skill_score = len(matched) / len(resume_skills) * 60
+    skill_ratio = len(matched) / len(resume_skills)
+
+    if skill_ratio < 0.15:
+        return 0, matched[:10]
+
+    skill_score = skill_ratio * 50
 
     title_score = 0
     resume_titles = [t.lower() for t in resume.get("job_titles", [])]
     for title in resume_titles:
-        words = title.split()
-        if any(w in job_title for w in words if len(w) > 2):
-            title_score = 20
+        words = [w for w in title.split() if len(w) > 3]
+        matches = sum(1 for w in words if w in job_title)
+        if matches >= 2:
+            title_score = 25
+            break
+        elif matches == 1:
+            title_score = 15
             break
 
     remote_bonus = 10 if job.get("remote") else 0
 
     exp_bonus = 0
     if resume.get("experience_years"):
-        exp_text = f"{resume['experience_years']} year"
-        if exp_text in job_desc or f"{int(resume['experience_years'])}+" in job_desc:
-            exp_bonus = 10
+        exp_years = int(resume["experience_years"])
+        exp_patterns = [f"{exp_years} year", f"{exp_years}+ year", f"{exp_years-1}-{exp_years+1}"]
+        if any(p in job_desc for p in exp_patterns):
+            exp_bonus = 15
 
     total = min(100, int(skill_score + title_score + remote_bonus + exp_bonus))
+
+    if total < 30:
+        return 0, matched[:10]
+
     return total, matched[:10]
