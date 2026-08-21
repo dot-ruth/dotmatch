@@ -3,33 +3,42 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, Job, formatDate } from "@/lib/api";
+import Card from "@/components/Card";
+import Badge from "@/components/Badge";
+import Button from "@/components/Button";
+import JobCard from "@/components/JobCard";
 
 export default function JobsPage() {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [remoteOnly, setRemoteOnly] = useState(false);
+  const [worldwideOnly, setWorldwideOnly] = useState(true);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [discovering, setDiscovering] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [discoverMsg, setDiscoverMsg] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const limit = 20;
 
   useEffect(() => {
     loadJobs();
-  }, [page, remoteOnly]);
+  }, [page, worldwideOnly]);
 
   async function loadJobs() {
     setLoading(true);
+    setLoadError(null);
     try {
       const params: Record<string, unknown> = { offset: page * limit, limit };
-      if (remoteOnly) params.remote_only = true;
+      if (worldwideOnly) params.worldwide_only = true;
       if (searchQuery) params.search_query = searchQuery;
       const res = await api.getJobs(params);
       setJobs(res.items || []);
       setTotal(res.total || 0);
+      setLastUpdated(new Date().toLocaleString());
     } catch {
-      // silently fail
+      setLoadError("We couldn't load jobs right now. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -37,9 +46,14 @@ export default function JobsPage() {
 
   async function handleDiscover() {
     setDiscovering(true);
+    setDiscoverMsg(null);
+    setLoadError(null);
     try {
-      await api.discoverJobs();
-      loadJobs();
+      const result = await api.discoverJobs();
+      setDiscoverMsg(`Found ${result.new_jobs} new jobs from ${result.sources_checked} sources.`);
+      await loadJobs();
+    } catch {
+      setLoadError("We couldn't refresh jobs right now. Your existing results are still available.");
     } finally {
       setDiscovering(false);
     }
@@ -52,129 +66,153 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="relative p-6 lg:p-10 min-h-screen animate-fade-in">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Jobs</h1>
-          <p className="text-sm text-gray-600 dark:text-white mt-1">{total} remote opportunities</p>
+          <h1 className="font-display text-2xl lg:text-3xl font-bold text-ink dark:text-ink-dark mb-1">
+            Jobs
+          </h1>
+          <p className="text-sm text-muted dark:text-muted-dark">
+            <span className="font-mono text-forest dark:text-forest-muted">{total}</span> software engineering roles worldwide
+            {lastUpdated && <span className="block mt-1 text-xs text-subtle dark:text-subtle-dark">Last updated {lastUpdated}</span>}
+          </p>
         </div>
-        <button
-          onClick={handleDiscover}
-          disabled={discovering}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap"
-        >
-          {discovering ? "Discovering..." : "Discover Jobs"}
-        </button>
+        <Button onClick={handleDiscover} disabled={discovering} loading={discovering}>
+          Discover Jobs
+        </Button>
       </div>
 
-      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Search by title, skill, or company..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 px-4 py-2 bg-gray-100 dark:bg-white/15 border border-gray-300 dark:border-white/30 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-white font-medium">
+      {/* Search & Filters */}
+      <form onSubmit={handleSearch} className="mb-8">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle dark:text-subtle-dark"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <label htmlFor="job-search" className="sr-only">Search jobs</label>
             <input
-              type="checkbox"
-              checked={remoteOnly}
-              onChange={(e) => setRemoteOnly(e.target.checked)}
-              className="rounded"
+              id="job-search"
+              type="text"
+              placeholder="Search by title, skill, or company..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-describedby="job-search-help job-results-status"
+              className="w-full pl-10 pr-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark text-ink dark:text-ink-dark placeholder-subtle dark:placeholder-subtle-dark rounded-xl focus:outline-none focus:ring-2 focus:ring-forest/30 dark:focus:ring-forest-muted/30 focus:border-forest/50 dark:focus:border-forest-muted/50 transition-all duration-200 text-sm"
             />
-            Remote only
-          </label>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-gray-200 dark:bg-white/20 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-white/30"
-          >
-            Search
-          </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 px-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark rounded-xl cursor-pointer hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-all duration-200" title="Show jobs that do not require residence in a specific country.">
+              <input
+                type="checkbox"
+                checked={worldwideOnly}
+                onChange={(e) => { setWorldwideOnly(e.target.checked); setPage(0); }}
+                className="w-4 h-4 rounded border-border dark:border-border-dark text-forest dark:text-forest-muted accent-forest dark:accent-forest-muted"
+              />
+              <span className="text-sm text-muted dark:text-muted-dark whitespace-nowrap">Open worldwide / eligible to work from Ethiopia</span>
+            </label>
+            <Button type="submit" variant="secondary">
+              Search
+            </Button>
+          </div>
         </div>
       </form>
+      <p id="job-search-help" className="-mt-5 mb-6 text-xs text-subtle dark:text-subtle-dark">
+        Shows roles open to applicants working from Ethiopia or another eligible location.
+      </p>
+      <p id="job-results-status" className="sr-only" aria-live="polite">
+        {loading ? "Loading jobs" : loadError ? "Jobs could not be loaded" : `${total} jobs found`}
+      </p>
 
+      {discoverMsg && (
+        <div className="mb-6 p-4 rounded-xl bg-forest/10 text-forest dark:bg-forest-muted/10 dark:text-forest-muted text-sm font-medium" role="status">
+          {discoverMsg}
+        </div>
+      )}
+
+      {loadError && (
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300" role="alert">
+          <p className="text-sm">{loadError}</p>
+          <Button size="sm" variant="secondary" onClick={loadJobs}>Retry</Button>
+        </div>
+      )}
+
+      {/* Active filters indicator */}
+      {(searchQuery || worldwideOnly) && (
+        <div className="flex items-center gap-2 mb-6 animate-fade-in">
+          <span className="text-xs text-subtle dark:text-subtle-dark">Filters:</span>
+          {worldwideOnly && (
+            <Badge variant="forest">Open worldwide</Badge>
+          )}
+          {searchQuery && (
+            <Badge variant="forest">&quot;{searchQuery}&quot;</Badge>
+          )}
+          <button
+            onClick={() => { setSearchQuery(""); setWorldwideOnly(false); setPage(0); }}
+            className="text-xs text-muted dark:text-muted-dark hover:text-ink dark:hover:text-ink-dark underline transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+
+      {/* Results */}
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-20 bg-gray-200 dark:bg-white/15 rounded animate-pulse" />
+            <div key={i} className="h-28 bg-surface-warm dark:bg-surface-dark-warm rounded-xl shimmer" />
           ))}
         </div>
+      ) : loadError ? (
+        <div className="py-20 text-center text-sm text-muted dark:text-muted-dark">
+          Jobs will appear here once the connection is restored.
+        </div>
       ) : jobs.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-lg text-gray-900 dark:text-white mb-2">No jobs found</p>
-          <p className="text-sm text-gray-500 dark:text-gray-300">Click &quot;Discover Jobs&quot; to fetch the latest opportunities</p>
+        <div className="py-20 text-center">
+          <div className="w-16 h-16 rounded-xl bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-subtle dark:text-subtle-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-2">
+            No jobs found
+          </p>
+          <p className="text-sm text-muted dark:text-muted-dark">
+            Click &quot;Discover Jobs&quot; to fetch the latest opportunities
+          </p>
         </div>
       ) : (
         <>
           <div className="space-y-3">
             {jobs.map((job) => (
-              <div
-                key={job.id}
-                className="bg-gray-100 dark:bg-white/15 backdrop-blur-sm border border-gray-200 dark:border-white/20 rounded-lg p-4 hover:bg-gray-200 dark:hover:bg-white/20 cursor-pointer transition-colors"
-                onClick={() => router.push(`/jobs/${job.id}`)}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-base md:text-lg text-gray-900 dark:text-white truncate">{job.title}</h3>
-                    <p className="text-gray-600 dark:text-white text-sm truncate">
-                      {job.company?.name || "Unknown Company"}
-                      {job.location && ` · ${job.location}`}
-                      {job.remote && " · Remote"}
-                    </p>
-                    {job.salary_min && job.salary_max && (
-                      <p className="text-green-600 dark:text-green-300 text-sm mt-1 font-medium">
-                        ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}
-                      </p>
-                    )}
-                    {job.description && (
-                      <p className="text-gray-500 dark:text-white text-xs mt-1 line-clamp-2">
-                        {job.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120)}...
-                      </p>
-                    )}
-                    {job.skills && job.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {job.skills.slice(0, 5).map((skill) => (
-                          <span key={skill} className="text-xs bg-blue-100 dark:bg-blue-500/30 text-blue-700 dark:text-white px-2 py-0.5 rounded">
-                            {skill}
-                          </span>
-                        ))}
-                        {job.skills.length > 5 && (
-                          <span className="text-xs text-gray-500 dark:text-white">+{job.skills.length - 5} more</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="shrink-0 self-end sm:self-start text-right">
-                    <span className="text-xs text-gray-600 dark:text-white bg-gray-200 dark:bg-white/20 px-2 py-1 rounded">
-                      {job.source_type}
-                    </span>
-                    {formatDate(job.posted_at) && (
-                      <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">{formatDate(job.posted_at)}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <JobCard key={job.id} job={job} />
             ))}
           </div>
-          <div className="flex justify-between items-center mt-6">
-            <button
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between mt-6">
+            <Button
+              variant="secondary"
               disabled={page === 0}
               onClick={() => setPage(page - 1)}
-              className="px-4 py-2 border border-gray-300 dark:border-white/30 text-gray-900 dark:text-white rounded-lg disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-white/15"
             >
               Previous
-            </button>
-            <span className="text-sm text-gray-700 dark:text-white font-medium">
-              Page {page + 1} of {Math.ceil(total / limit) || 1}
+            </Button>
+            <span className="text-sm font-mono text-subtle dark:text-subtle-dark">
+              {page + 1} / {Math.ceil(total / limit) || 1}
             </span>
-            <button
+            <Button
+              variant="secondary"
               disabled={(page + 1) * limit >= total}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 border border-gray-300 dark:border-white/30 text-gray-900 dark:text-white rounded-lg disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-white/15"
             >
               Next
-            </button>
+            </Button>
           </div>
         </>
       )}

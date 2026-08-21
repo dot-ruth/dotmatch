@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 class ApiClient {
   private baseUrl: string;
@@ -60,6 +60,35 @@ class ApiClient {
   async discoverJobs() {
     return this.post<DiscoverResult>("/api/jobs/discover");
   }
+  async getSourceCounts() {
+    return this.get<JobSourceCount[]>("/api/jobs/sources");
+  }
+  async uploadResume(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const url = `${this.baseUrl}/api/jobs/resume/`;
+    const response = await fetch(url, { method: "POST", body: formData });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Upload failed" }));
+      throw new Error(error.detail || `HTTP ${response.status}`);
+    }
+    return response.json() as Promise<ResumeProfile>;
+  }
+  async getResumeProfile() {
+    return this.get<ResumeProfile | null>("/api/jobs/resume/profile");
+  }
+  async getMatchedJobs(params?: Record<string, unknown>) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value));
+        }
+      });
+    }
+    const qs = searchParams.toString();
+    return this.get<MatchedJob[]>(`/api/jobs/matched/${qs ? `?${qs}` : ""}`);
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);
@@ -106,9 +135,31 @@ export interface DiscoverResult {
   errors: string[];
 }
 
+export interface JobSourceCount {
+  source_type: string;
+  job_count: number;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
   offset: number;
   limit: number;
+}
+
+export interface ResumeProfile {
+  id: string;
+  filename: string;
+  raw_text: string;
+  skills: string[];
+  job_titles: string[];
+  experience_years: number | null;
+  education: string[];
+  created_at: string;
+}
+
+export interface MatchedJob {
+  job: Job;
+  match_score: number;
+  matched_skills: string[];
 }

@@ -4,14 +4,15 @@ from .remotive import fetch_remotive
 from .arbeitnow import fetch_arbeitnow
 from .jobicy import fetch_jobicy
 from .findwork import fetch_findwork
-from .hn_hiring import fetch_hn_hiring
-from .workingnomads import fetch_workingnomads
 from .devjobsscanner import fetch_devjobsscanner
 from .himalayas import fetch_himalayas
 from .freehire import fetch_freehire
 from .remotejobs_org import fetch_remotejobs_org
 from .jobsbase import fetch_jobsbase
-from .greenhouse import fetch_greenhouse
+from .lever import fetch_lever
+from .ashby import fetch_ashby
+from .torre import fetch_torre
+from .hn_hiring import fetch_hn_hiring
 
 __all__ = [
     "fetch_remoteok",
@@ -20,12 +21,13 @@ __all__ = [
     "fetch_arbeitnow",
     "fetch_jobicy",
     "fetch_findwork",
-    "fetch_hn_hiring",
-    "fetch_workingnomads",
     "fetch_devjobsscanner",
     "fetch_himalayas",
     "fetch_freehire",
     "fetch_remotejobs_org",
     "fetch_jobsbase",
-    "fetch_greenhouse",
+    "fetch_lever",
+    "fetch_ashby",
+    "fetch_torre",
+    "fetch_hn_hiring",
 ]

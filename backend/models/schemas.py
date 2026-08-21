@@ -37,6 +37,28 @@ class DiscoverResult(BaseModel):
     errors: list[str]
 
 
+class JobSourceCount(BaseModel):
+    source_type: str
+    job_count: int
+
+
 class JobSource(BaseModel):
     name: str
     type: str
+
+
+class ResumeProfile(BaseModel):
+    id: str
+    filename: str
+    raw_text: str
+    skills: list[str]
+    job_titles: list[str]
+    experience_years: float | None
+    education: list[str]
+    created_at: str
+
+
+class MatchedJob(BaseModel):
+    job: Job
+    match_score: int
+    matched_skills: list[str]
