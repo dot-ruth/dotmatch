@@ -67,7 +67,6 @@ const stats = [
   { value: "15", label: "Job sources" },
   { value: "100%", label: "Remote jobs" },
   { value: "0", label: "Ghost jobs" },
-  { value: "24/7", label: "Always updating" },
 ];
 
 export default function HomePage() {
@@ -135,7 +134,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="relative hidden lg:block">
+              <div className="relative max-w-md mx-auto w-full lg:max-w-none lg:mx-0">
                 <div className="absolute -top-6 -right-6 w-32 h-32 bg-forest/10 dark:bg-forest-muted/10 rounded-2xl" />
                 <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-ember/10 dark:bg-ember-muted/10 rounded-xl" />
                 <div className="relative bg-surface-warm/80 dark:bg-surface-dark-warm/80 backdrop-blur-md border border-border dark:border-border-dark rounded-2xl p-6 shadow-card dark:shadow-none">
@@ -227,7 +226,7 @@ export default function HomePage() {
 
         {/* Stats */}
         <section className="px-6 lg:px-20 py-16 border-t border-border/50 dark:border-border-dark/50">
-          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
             {stats.map((s) => (
               <div key={s.label}>
                 <p className="font-display text-4xl md:text-5xl font-bold text-forest dark:text-forest-muted mb-2">

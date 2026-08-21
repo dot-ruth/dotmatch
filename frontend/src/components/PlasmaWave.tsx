@@ -141,6 +141,7 @@ export default function PlasmaWave({
   useEffect(() => {
     const ctn = containerRef.current;
     if (!ctn) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const renderer = new Renderer({
       alpha: true,
@@ -224,13 +225,17 @@ export default function PlasmaWave({
       program.uniforms.uColor2.value = hexToRgb(cols[1]);
 
       renderer.render({ scene, camera });
-      animateId = requestAnimationFrame(update);
+      if (!reduceMotion) animateId = requestAnimationFrame(update);
     };
 
-    animateId = requestAnimationFrame(update);
+    if (reduceMotion) {
+      update(startTime);
+    } else {
+      animateId = requestAnimationFrame(update);
+    }
 
     return () => {
-      cancelAnimationFrame(animateId);
+      if (!reduceMotion) cancelAnimationFrame(animateId);
       ro.disconnect();
       if (ctn && gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);
