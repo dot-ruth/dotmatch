@@ -60,6 +60,9 @@ class ApiClient {
   async discoverJobs() {
     return this.post<DiscoverResult>("/api/jobs/discover");
   }
+  async getSourceCounts() {
+    return this.get<JobSourceCount[]>("/api/jobs/sources");
+  }
   async uploadResume(file: File) {
     const formData = new FormData();
     formData.append("file", file);
@@ -130,6 +133,11 @@ export interface DiscoverResult {
   new_jobs: number;
   sources_checked: number;
   errors: string[];
+}
+
+export interface JobSourceCount {
+  source_type: string;
+  job_count: number;
 }
 
 export interface PaginatedResponse<T> {

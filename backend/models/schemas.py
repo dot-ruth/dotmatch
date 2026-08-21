@@ -37,6 +37,11 @@ class DiscoverResult(BaseModel):
     errors: list[str]
 
 
+class JobSourceCount(BaseModel):
+    source_type: str
+    job_count: int
+
+
 class JobSource(BaseModel):
     name: str
     type: str

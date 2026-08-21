@@ -1,9 +1,10 @@
 import io
+from collections import Counter
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 
-from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob
+from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob, JobSourceCount
 from services.job_store import job_store
 from services.job_discovery import discover_all_jobs
 from services.resume_service import parse_resume_text, calculate_match_score
@@ -62,6 +63,16 @@ async def list_matched_jobs(
 
     matched.sort(key=lambda m: m.match_score, reverse=True)
     return matched[:limit]
+
+
+@router.get("/sources", response_model=list[JobSourceCount])
+async def get_source_counts():
+    """Return the number of stored jobs from each source."""
+    counts = Counter(job.get("source_type") or "unknown" for job in job_store.get_all())
+    return [
+        JobSourceCount(source_type=source_type, job_count=job_count)
+        for source_type, job_count in sorted(counts.items())
+    ]
 
 
 @router.get("/{job_id}", response_model=Job)
