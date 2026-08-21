@@ -14,17 +14,20 @@ export default function JobDetailPage() {
   const id = params.id as string;
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadJob();
   }, [id]);
 
   async function loadJob() {
+    setLoading(true);
+    setLoadError(null);
     try {
       const res = await api.getJob(id);
       setJob(res);
     } catch {
-      router.push("/jobs");
+      setLoadError("We couldn't load this job. It may be temporarily unavailable.");
     } finally {
       setLoading(false);
     }
@@ -38,6 +41,21 @@ export default function JobDetailPage() {
             <div className="h-5 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-20 shimmer" />
             <div className="h-10 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-96 shimmer" />
             <div className="h-96 bg-surface-warm dark:bg-surface-dark-warm rounded-xl shimmer" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="p-6 lg:p-10 min-h-screen animate-fade-in">
+        <div className="max-w-xl p-6 rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300" role="alert">
+          <h1 className="font-display text-xl font-semibold mb-2">Job details unavailable</h1>
+          <p className="text-sm mb-5">{loadError}</p>
+          <div className="flex flex-wrap gap-3">
+            <Button size="sm" variant="secondary" onClick={loadJob}>Retry</Button>
+            <Button size="sm" variant="ghost" onClick={() => router.push("/jobs")}>Back to jobs</Button>
           </div>
         </div>
       </div>

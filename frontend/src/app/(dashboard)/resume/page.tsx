@@ -16,12 +16,14 @@ export default function ResumePage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadResume();
   }, []);
 
   async function loadResume() {
+    setLoadError(null);
     try {
       const profile = await api.getResumeProfile();
       setResume(profile);
@@ -30,7 +32,7 @@ export default function ResumePage() {
         setMatchedJobs(matched);
       }
     } catch {
-      // silently fail
+      setLoadError("We couldn't load your resume details or matches. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -45,7 +47,9 @@ export default function ResumePage() {
       const matched = await api.getMatchedJobs({ limit: 10 });
       setMatchedJobs(matched);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      const message = e instanceof Error ? e.message : "Upload failed";
+      setError(`We couldn't upload your resume: ${message}`);
+      throw e;
     } finally {
       setUploading(false);
     }
@@ -74,6 +78,13 @@ export default function ResumePage() {
         </p>
       </div>
 
+      {loadError && (
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300" role="alert">
+          <p className="text-sm">{loadError}</p>
+          <Button size="sm" variant="secondary" onClick={loadResume}>Retry</Button>
+        </div>
+      )}
+
       {/* Upload Section */}
       {!resume ? (
         <Card className="p-8">
@@ -85,9 +96,7 @@ export default function ResumePage() {
               We&apos;ll extract your skills and experience to find the best matching remote software engineering jobs.
             </p>
             <FileUpload onUpload={handleUpload} />
-            {error && (
-              <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
+            {error && <p className="mt-4 text-sm text-red-600 dark:text-red-400" role="alert">{error}</p>}
           </div>
         </Card>
       ) : (

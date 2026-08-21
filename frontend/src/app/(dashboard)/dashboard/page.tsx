@@ -2,40 +2,54 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, Job, formatDate } from "@/lib/api";
+import { api, Job, formatDate, JobSourceCount } from "@/lib/api";
 import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 
 const SOURCES = [
-  "RemoteOK", "WeWorkRemotely", "Remotive", "Arbeitnow",
-  "Jobicy", "Findwork", "DevJobsScanner", "Himalayas",
-  "FreeHire", "RemoteJobsOrg", "JobsBase", "Lever", "Ashby", "Torre", "HN Hiring",
+  { name: "RemoteOK", type: "remoteok" },
+  { name: "We Work Remotely", type: "weworkremotely" },
+  { name: "Remotive", type: "remotive" },
+  { name: "Arbeitnow", type: "arbeitnow" },
+  { name: "Jobicy", type: "jobicy" },
+  { name: "Findwork", type: "findwork" },
+  { name: "DevJobsScanner", type: "devjobsscanner" },
+  { name: "Himalayas", type: "himalayas" },
+  { name: "FreeHire", type: "freehire" },
+  { name: "RemoteJobs.org", type: "remotejobs_org" },
+  { name: "JobsBase", type: "jobsbase" },
+  { name: "Lever", type: "lever" },
+  { name: "Ashby", type: "ashby" },
+  { name: "Torre", type: "torre" },
+  { name: "HN Hiring", type: "hn_hiring" },
 ];
 
 export default function DashboardPage() {
   const router = useRouter();
   const [totalJobs, setTotalJobs] = useState(0);
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
+  const [sourceCounts, setSourceCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [discovering, setDiscovering] = useState(false);
   const [discoverMsg, setDiscoverMsg] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
   async function loadData() {
+    setLoadError(null);
     try {
-      const res = await api.getJobs({ limit: 10 });
+      const [res, sourceResults] = await Promise.all([api.getJobs({ limit: 10 }), api.getSourceCounts()]);
       setTotalJobs(res.total || 0);
       setRecentJobs(res.items || []);
-      if (res.total > 0) {
-        setLastRefresh(new Date().toLocaleTimeString());
-      }
+      setSourceCounts(toSourceCountMap(sourceResults));
+      setLastRefresh(new Date().toLocaleString());
     } catch {
-      // silently fail
+      setLoadError("We couldn't load your job dashboard. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -44,13 +58,14 @@ export default function DashboardPage() {
   async function handleDiscover() {
     setDiscovering(true);
     setDiscoverMsg(null);
+    setLoadError(null);
     try {
       const result = await api.discoverJobs();
       setDiscoverMsg(`Found ${result.new_jobs} new jobs from ${result.sources_checked} sources`);
-      setLastRefresh(new Date().toLocaleTimeString());
+      setLastRefresh(new Date().toLocaleString());
       await loadData();
     } catch {
-      setDiscoverMsg("Discovery failed");
+      setLoadError("We couldn't refresh jobs right now. Your existing results are still available.");
     } finally {
       setDiscovering(false);
     }
@@ -81,7 +96,7 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-sm text-muted dark:text-muted-dark">
-            Remote software engineering jobs from company career pages
+            Browse jobs already collected, or refresh the sources when you want newer listings.
           </p>
         </div>
         <Button onClick={handleDiscover} disabled={discovering} loading={discovering}>
@@ -91,8 +106,15 @@ export default function DashboardPage() {
 
       {/* Message */}
       {discoverMsg && (
-        <div className="mb-8 p-4 rounded-xl bg-forest/10 text-forest dark:bg-forest-muted/10 dark:text-forest-muted text-sm font-medium animate-fade-in">
+        <div className="mb-8 p-4 rounded-xl bg-forest/10 text-forest dark:bg-forest-muted/10 dark:text-forest-muted text-sm font-medium animate-fade-in" role="status">
           {discoverMsg}
+        </div>
+      )}
+
+      {loadError && (
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300" role="alert">
+          <p className="text-sm">{loadError}</p>
+          <Button size="sm" variant="secondary" onClick={loadData}>Retry</Button>
         </div>
       )}
 
@@ -108,8 +130,8 @@ export default function DashboardPage() {
         </Card>
         <Card className="p-5">
           <p className="text-sm text-muted dark:text-muted-dark mb-1">Last Refreshed</p>
-          <p className="font-display text-lg font-bold text-ink dark:text-ink-dark">
-            {lastRefresh || "Never"}
+            <p className="font-display text-sm font-bold text-ink dark:text-ink-dark">
+              {lastRefresh || "Never"}
           </p>
         </Card>
       </div>
@@ -143,18 +165,21 @@ export default function DashboardPage() {
             Job Sources
           </h2>
           <p className="text-xs text-subtle dark:text-subtle-dark mt-1">
-            Directly from company career pages &amp; remote-first boards
+            Stored jobs by source. Counts update after each successful refresh.
           </p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-border dark:bg-border-dark">
           {SOURCES.map((source) => (
             <div
-              key={source}
-              className="px-4 py-3 bg-surface-warm dark:bg-surface-dark-warm flex items-center gap-2"
+              key={source.type}
+              className="px-4 py-3 bg-surface-warm dark:bg-surface-dark-warm flex items-center justify-between gap-3"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-forest dark:bg-forest-muted shrink-0" />
-              <span className="text-sm font-mono text-muted dark:text-muted-dark truncate">
-                {source}
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${sourceCounts[source.type] ? "bg-forest dark:bg-forest-muted" : "bg-subtle dark:bg-subtle-dark"}`} />
+                <span className="text-sm font-mono text-muted dark:text-muted-dark truncate">{source.name}</span>
+              </div>
+              <span className="text-xs font-mono text-forest dark:text-forest-muted shrink-0" aria-label={`${sourceCounts[source.type] || 0} stored jobs`}>
+                {sourceCounts[source.type] || 0}
               </span>
             </div>
           ))}
@@ -174,7 +199,11 @@ export default function DashboardPage() {
             View all
           </button>
         </div>
-        {recentJobs.length === 0 ? (
+        {loadError ? (
+          <div className="p-12 text-center text-sm text-muted dark:text-muted-dark">
+            Recent jobs will appear here once the connection is restored.
+          </div>
+        ) : recentJobs.length === 0 ? (
           <div className="p-12 text-center">
             <div className="w-14 h-14 rounded-xl bg-surface-deep dark:bg-surface-dark-deep flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-subtle dark:text-subtle-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,4 +254,11 @@ export default function DashboardPage() {
       </Card>
     </div>
   );
+}
+
+function toSourceCountMap(counts: JobSourceCount[]) {
+  return counts.reduce<Record<string, number>>((map, source) => {
+    map[source.source_type] = source.job_count;
+    return map;
+  }, {});
 }
