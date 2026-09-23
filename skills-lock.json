@@ -6,6 +6,30 @@
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "93f53fd1c0352d3d7ec17b8f73d7351bf76f4821e55d123c9d2abc2c53ba48e4"
+    },
+    "taste": {
+      "source": "leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste/SKILL.md",
+      "computedHash": "daba1a6a0226927f51db9242f5b21eec3d4322af0a9f67a32f219c9b11e8507a"
+    },
+    "taste-redesign": {
+      "source": "leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-redesign/SKILL.md",
+      "computedHash": "9bea8c2328b2ac21de9635450776e4c5fbb61c09554f4c12f6d3b632cd422916"
+    },
+    "garden": {
+      "source": "ConardLi/garden-skills",
+      "sourceType": "github",
+      "skillPath": "skills/garden/SKILL.md",
+      "computedHash": "6fbf04817400643646951bd07b13251fbe8506cb823ca90c2451eae62a7e9dda"
+    },
+    "ponytail": {
+      "source": "DietrichGebert/ponytail",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail/SKILL.md",
+      "computedHash": "2358a5cfba249ce5e0cca5b38104947ec5378714e2bca1f23715f5cb9c692d67"
     }
   }
 }

@@ -21,6 +21,8 @@ MANIFEST
 .venv
 venv/
 ENV/
+skills/
+skills-lock.json 
 
 # Virtual environments
 .python-version
@@ -30,6 +32,9 @@ ENV/
 .env
 .env.local
 .env.production
+
+# Local runtime data (job snapshot)
+/backend/data/
 
 # IDE
 .vscode/
@@ -57,6 +62,7 @@ node_modules/
 .next/
 out/
 build/
+*.tsbuildinfo
 
 # Logs
 *.log

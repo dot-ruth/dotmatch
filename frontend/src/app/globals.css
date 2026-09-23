@@ -2,7 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
+
+/* Hero entry: single restrained fade (opacity + 12px, fast ease) */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 0.6s ease-in-out both;
+}
+
+.rise-1 { animation-delay: 0.05s; }
+.rise-2 { animation-delay: 0.15s; }
+.rise-3 { animation-delay: 0.25s; }
+.rise-4 { animation-delay: 0.35s; }
+.rise-5 { animation-delay: 0.5s; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 
 * {
   box-sizing: border-box;
@@ -132,7 +160,7 @@ html.dark .job-description a {
 .job-description h2,
 .job-description h3,
 .job-description h4 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Space Grotesk", system-ui, sans-serif;
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
@@ -225,11 +253,6 @@ html.dark .job-description th {
 .job-description img {
   max-width: 100%;
   height: auto;
-}
-
-.plasma-wave-container {
-  width: 100%;
-  height: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

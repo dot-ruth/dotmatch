@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job, parse_iso_date
+from adapters.common import fetch_json, is_dev_job, parse_iso_date
 
 
 async def fetch_freehire() -> list[dict]:
@@ -15,7 +15,8 @@ async def fetch_freehire() -> list[dict]:
     async with httpx.AsyncClient(timeout=30) as client:
         for category in categories:
             try:
-                resp = await client.get(
+                data = await fetch_json(
+                    client, "GET",
                     "https://freehire.dev/api/v1/jobs/search",
                     params={
                         "category": category,
@@ -24,10 +25,9 @@ async def fetch_freehire() -> list[dict]:
                         "offset": 0,
                     },
                 )
-                if resp.status_code != 200:
+                if not data:
                     continue
 
-                data = resp.json()
                 for item in data.get("data", []):
                     title = item.get("title", "")
                     if not title or not is_dev_job(title):

@@ -1,10 +1,10 @@
 # DotMatch
 
-Remote software engineering jobs aggregated from multiple sources into one place.
+Remote software engineering jobs aggregated from 15 sources into one place.
 
 ## What it does
 
-DotMatch scrapes job listings from 5 remote job boards and displays them in a clean, searchable interface. No login required — just click "Discover Jobs" and browse.
+DotMatch scrapes job listings from 15 remote job boards and displays them in a clean, searchable interface. No login required — just click "Discover Jobs" and browse.
 
 **Job Sources:**
 - RemoteOK
@@ -12,6 +12,16 @@ DotMatch scrapes job listings from 5 remote job boards and displays them in a cl
 - Remotive
 - Arbeitnow
 - Jobicy
+- Findwork
+- DevJobsScanner
+- Himalayas
+- FreeHire
+- RemoteJobs.org
+- JobsBase
+- Lever
+- Ashby
+- Torre
+- HN Hiring
 
 All jobs are filtered to show only software engineering roles.
 
@@ -19,9 +29,8 @@ All jobs are filtered to show only software engineering roles.
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Python 3.14, FastAPI, httpx |
+| Backend | Python 3.12, FastAPI, httpx |
 | Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS |
-| Background | PlasmaWave (OGL/WebGL) |
 
 **Zero external dependencies** — no database, no Redis, no API keys needed.
 
@@ -55,10 +64,12 @@ dotmatch/
 │       │       └── jobs/
 │       │           ├── page.tsx
 │       │           └── [id]/page.tsx
-│       ├── components/
-│       │   └── PlasmaWave/  # Animated background
-│       └── lib/
-│           └── api.ts       # API client
+│   ├── components/
+│   │   └── Logo, Button, Card, Badge, JobCard, MatchScore, FileUpload, Reveal
+│   └── lib/
+│       ├── api.ts       # API client
+│       ├── fonts.ts     # Shared typeface
+│       └── sources.ts   # Job board list
 ```
 
 ## Local Development

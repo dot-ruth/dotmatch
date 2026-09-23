@@ -7,7 +7,7 @@ import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import FileUpload from "@/components/FileUpload";
-import MatchScore from "@/components/MatchScore";
+import JobCard from "@/components/JobCard";
 
 export default function ResumePage() {
   const router = useRouter();
@@ -58,7 +58,7 @@ export default function ResumePage() {
   if (loading) {
     return (
       <div className="p-6 lg:p-10">
-        <div className="animate-pulse space-y-6">
+        <div className="space-y-6">
           <div className="h-8 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-48 shimmer" />
           <div className="h-48 bg-surface-warm dark:bg-surface-dark-warm rounded-xl shimmer" />
         </div>
@@ -70,6 +70,10 @@ export default function ResumePage() {
     <div className="p-6 lg:p-10 min-h-screen animate-fade-in">
       {/* Header */}
       <div className="mb-10">
+        <p className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.18em] text-forest dark:text-forest-muted font-bold mb-2">
+          <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-forest dark:bg-forest-muted" />
+          Match
+        </p>
         <h1 className="font-display text-2xl lg:text-3xl font-bold text-ink dark:text-ink-dark mb-1">
           My Resume
         </h1>
@@ -202,41 +206,13 @@ export default function ResumePage() {
           ) : (
             <div className="space-y-3">
               {matchedJobs.map((matched) => (
-                <button
+                <JobCard
                   key={matched.job.id}
-                  onClick={() => router.push(`/jobs/${matched.job.id}`)}
-                  className="w-full text-left p-5 rounded-xl bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark hover:border-forest/30 dark:hover:border-forest-muted/30 hover:shadow-card dark:hover:shadow-none transition-all duration-200 group"
-                >
-                  <div className="flex items-start gap-4">
-                    <MatchScore score={matched.match_score} />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-display text-base font-semibold text-ink dark:text-ink-dark mb-1 truncate group-hover:text-forest dark:group-hover:text-forest-muted transition-colors">
-                        {matched.job.title}
-                      </p>
-                      <p className="text-sm text-muted dark:text-muted-dark mb-2">
-                        <span className="text-forest dark:text-forest-muted font-medium">
-                          {matched.job.company?.name || "Unknown"}
-                        </span>
-                        {matched.job.location && <span className="text-subtle dark:text-subtle-dark"> · {matched.job.location}</span>}
-                      </p>
-                      {matched.matched_skills.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {matched.matched_skills.slice(0, 5).map((skill) => (
-                            <Badge key={skill} variant="forest">{skill}</Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="shrink-0 text-right">
-                      {matched.job.salary_min && matched.job.salary_max && (
-                        <p className="text-sm font-mono text-ember dark:text-ember-muted mb-1">
-                          ${(matched.job.salary_min / 1000).toFixed(0)}k–${(matched.job.salary_max / 1000).toFixed(0)}k
-                        </p>
-                      )}
-                      <Badge variant="muted">{matched.job.source_type}</Badge>
-                    </div>
-                  </div>
-                </button>
+                  job={matched.job}
+                  showMatchScore
+                  matchScore={matched.match_score}
+                  matchedSkills={matched.matched_skills}
+                />
               ))}
             </div>
           )}

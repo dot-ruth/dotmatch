@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job, parse_iso_date
+from adapters.common import fetch_json, is_dev_job, parse_iso_date
 
 
 async def fetch_jobsbase() -> list[dict]:
@@ -16,15 +16,15 @@ async def fetch_jobsbase() -> list[dict]:
                 if cursor:
                     params["cursor"] = cursor
 
-                resp = await client.get(
+                resp_data = await fetch_json(
+                    client, "GET",
                     "https://jobsbase.io/api/v1/jobs",
                     params=params,
                 )
-                if resp.status_code != 200:
+                if not resp_data:
                     break
 
-                data = resp.json()
-                page_jobs = data.get("jobs", [])
+                page_jobs = resp_data.get("jobs", [])
                 if not page_jobs:
                     break
 
@@ -57,9 +57,9 @@ async def fetch_jobsbase() -> list[dict]:
                         "posted_at": parse_iso_date(item.get("posted_at")),
                     })
 
-                if not data.get("has_more", False):
+                if not resp_data.get("has_more", False):
                     break
-                cursor = data.get("next_cursor")
+                cursor = resp_data.get("next_cursor")
 
             except Exception:
                 break

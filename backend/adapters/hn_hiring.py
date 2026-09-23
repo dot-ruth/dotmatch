@@ -1,6 +1,8 @@
+import re
+
 import httpx
 
-from adapters.common import is_dev_job
+from adapters.common import fetch_json, is_dev_job
 
 
 def _parse_hn_item(item: dict) -> dict | None:
@@ -48,7 +50,6 @@ def _parse_hn_item(item: dict) -> dict | None:
 
     salary_min = None
     salary_max = None
-    import re
     salary_match = re.search(r"\$[\d,]+k?\s*[-–—to]+\s*\$[\d,]+k?", search_text)
     if salary_match:
         salary_text = salary_match.group(0).replace(",", "")
@@ -85,7 +86,8 @@ async def fetch_hn_hiring() -> list[dict]:
 
     async with httpx.AsyncClient(timeout=20) as client:
         try:
-            algolia_resp = await client.get(
+            search_data = await fetch_json(
+                client, "GET",
                 "https://hn.algolia.com/api/v1/search",
                 params={
                     "query": "\"who is hiring\"",
@@ -93,38 +95,35 @@ async def fetch_hn_hiring() -> list[dict]:
                     "hitsPerPage": 5,
                 },
             )
-            if algolia_resp.status_code != 200:
+            if not search_data:
                 return jobs
 
-            hits = algolia_resp.json().get("hits", [])
+            hits = search_data.get("hits", [])
 
             hiring_ids = []
             for hit in hits:
                 title = hit.get("title", "").lower()
-                if "who is hiring" in title and "who is hiring" in title:
+                if "who is hiring" in title:
                     hiring_ids.append(hit.get("objectID"))
 
             if not hiring_ids:
                 return jobs
 
             for thread_id in hiring_ids[:2]:
-                item_resp = await client.get(
+                thread = await fetch_json(
+                    client, "GET",
                     f"https://hacker-news.firebaseio.com/v0/item/{thread_id}.json"
                 )
-                if item_resp.status_code != 200:
+                if not thread:
                     continue
 
-                thread = item_resp.json()
                 comment_ids = thread.get("kids", [])[:100]
 
                 for cid in comment_ids:
-                    comment_resp = await client.get(
+                    comment = await fetch_json(
+                        client, "GET",
                         f"https://hacker-news.firebaseio.com/v0/item/{cid}.json"
                     )
-                    if comment_resp.status_code != 200:
-                        continue
-
-                    comment = comment_resp.json()
                     if not comment or comment.get("deleted") or comment.get("dead"):
                         continue
 

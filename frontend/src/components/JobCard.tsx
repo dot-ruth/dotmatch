@@ -1,17 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Job, formatDate } from "@/lib/api";
+import { Job, formatDate, formatSalary } from "@/lib/api";
+import { scoreClasses } from "./MatchScore";
 import Badge from "./Badge";
 
 interface JobCardProps {
   job: Job;
   showMatchScore?: boolean;
   matchScore?: number;
+  matchedSkills?: string[];
 }
 
-export default function JobCard({ job, showMatchScore = false, matchScore }: JobCardProps) {
+export default function JobCard({ job, showMatchScore = false, matchScore, matchedSkills }: JobCardProps) {
   const router = useRouter();
+  const salary = formatSalary(job.salary_min, job.salary_max);
+  const posted = formatDate(job.posted_at);
 
   return (
     <button
@@ -49,17 +53,26 @@ export default function JobCard({ job, showMatchScore = false, matchScore }: Job
               )}
             </div>
           )}
+          {matchedSkills && matchedSkills.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {matchedSkills.slice(0, 5).map((skill) => (
+                <Badge key={skill} variant="forest">
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
         <div className="shrink-0 text-right">
-          {job.salary_min && job.salary_max && (
-            <p className="text-sm font-mono text-ember dark:text-ember-muted mb-1">
-              ${(job.salary_min / 1000).toFixed(0)}k–${(job.salary_max / 1000).toFixed(0)}k
+          {salary && (
+            <p className="text-sm font-mono text-ember dark:text-ember-muted mb-1 tabular-nums">
+              {salary}
             </p>
           )}
           <Badge variant="muted">{job.source_type}</Badge>
-          {formatDate(job.posted_at) && (
+          {posted && (
             <p className="text-[10px] font-mono text-subtle dark:text-subtle-dark mt-1.5">
-              {formatDate(job.posted_at)}
+              {posted}
             </p>
           )}
         </div>
@@ -69,13 +82,8 @@ export default function JobCard({ job, showMatchScore = false, matchScore }: Job
 }
 
 function MatchScoreBadge({ score }: { score: number }) {
-  const color =
-    score >= 80 ? "text-emerald-600 dark:text-emerald-400" :
-    score >= 50 ? "text-amber-600 dark:text-amber-400" :
-    "text-red-600 dark:text-red-400";
-
   return (
-    <span className={`text-xs font-mono font-medium ${color}`}>
+    <span className={`text-xs font-mono font-medium ${scoreClasses(score).text}`}>
       {score}% match
     </span>
   );

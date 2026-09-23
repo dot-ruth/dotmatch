@@ -1,6 +1,11 @@
 """Shared constants for job adapters."""
 
+import logging
 from datetime import datetime, timezone
+
+import httpx
+
+logger = logging.getLogger(__name__)
 
 
 DEV_TITLE_KEYWORDS = (
@@ -77,4 +82,24 @@ def parse_rfc2822_date(date_str: str | None) -> str | None:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.isoformat()
     except Exception:
+        return None
+
+
+async def fetch_json(client: httpx.AsyncClient, method: str, url: str, **kwargs):
+    """Request JSON, returning None on bad status, network, or decode failure."""
+    try:
+        resp = await client.request(method, url, **kwargs)
+        return resp.json() if resp.status_code == 200 else None
+    except Exception as e:
+        logger.debug("fetch_json %s %s failed: %s", method, url, e)
+        return None
+
+
+async def fetch_text(client: httpx.AsyncClient, url: str, **kwargs) -> str | None:
+    """GET text (RSS feeds), returning None on bad status or network failure."""
+    try:
+        resp = await client.get(url, **kwargs)
+        return resp.text if resp.status_code == 200 else None
+    except Exception as e:
+        logger.debug("fetch_text %s failed: %s", url, e)
         return None

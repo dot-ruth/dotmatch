@@ -2,8 +2,8 @@
 
 import { ReactNode, ButtonHTMLAttributes } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonSize = "sm" | "md";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -13,16 +13,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-forest text-white hover:bg-forest-light active:bg-forest/90",
-  secondary: "bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark text-ink dark:text-ink-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep",
-  ghost: "text-muted dark:text-muted-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep hover:text-ink dark:hover:text-ink-dark",
-  danger: "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/30",
+  primary: "bg-forest dark:bg-forest-muted text-white hover:bg-forest-light dark:hover:bg-forest-muted/90 active:bg-forest/90 rounded-lg",
+  secondary: "bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark text-ink dark:text-ink-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep rounded-lg",
+  ghost: "text-muted dark:text-muted-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep hover:text-ink dark:hover:text-ink-dark rounded-lg",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs rounded-lg",
-  md: "px-4 py-2 text-sm rounded-lg",
-  lg: "px-6 py-3 text-sm rounded-xl",
+  sm: "px-3.5 py-1.5 text-xs rounded-lg",
+  md: "px-5 py-2 text-sm rounded-lg",
 };
 
 export default function Button({

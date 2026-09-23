@@ -2,7 +2,7 @@ import re
 
 import httpx
 
-from adapters.common import is_dev_job, parse_iso_date
+from adapters.common import fetch_json, is_dev_job, parse_iso_date
 
 
 async def fetch_remotive() -> list[dict]:
@@ -13,29 +13,28 @@ async def fetch_remotive() -> list[dict]:
     async with httpx.AsyncClient(timeout=30) as client:
         for category in categories:
             try:
-                resp = await client.get(f"https://remotive.com/api/remote-jobs?category={category}")
-                if resp.status_code == 200:
-                    for item in resp.json().get("jobs", []):
-                        title = item.get("title", "")
-                        if not is_dev_job(title):
-                            continue
+                data = await fetch_json(client, "GET", f"https://remotive.com/api/remote-jobs?category={category}")
+                for item in (data or {}).get("jobs", []):
+                    title = item.get("title", "")
+                    if not is_dev_job(title):
+                        continue
 
-                        salary_min, salary_max = _parse_salary(item.get("salary", ""))
-                        jobs.append({
-                            "title": title,
-                            "company": {"name": item.get("company_name", "Unknown")},
-                            "location": item.get("candidate_required_location", "Remote"),
-                            "remote": True,
-                            "salary_min": salary_min,
-                            "salary_max": salary_max,
-                            "url": item.get("url", ""),
-                            "description": item.get("description", ""),
-                            "skills": item.get("tags", []),
-                            "experience_level": None,
-                            "employment_type": None,
-                            "source_type": "remotive",
-                            "posted_at": parse_iso_date(item.get("publication_date")),
-                        })
+                    salary_min, salary_max = _parse_salary(item.get("salary", ""))
+                    jobs.append({
+                        "title": title,
+                        "company": {"name": item.get("company_name", "Unknown")},
+                        "location": item.get("candidate_required_location", "Remote"),
+                        "remote": True,
+                        "salary_min": salary_min,
+                        "salary_max": salary_max,
+                        "url": item.get("url", ""),
+                        "description": item.get("description", ""),
+                        "skills": item.get("tags", []),
+                        "experience_level": None,
+                        "employment_type": None,
+                        "source_type": "remotive",
+                        "posted_at": parse_iso_date(item.get("publication_date")),
+                    })
             except Exception:
                 pass
 

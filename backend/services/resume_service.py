@@ -1,5 +1,6 @@
 import logging
 import re
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +99,6 @@ TECH_SKILLS = {
     "jira": ["jira", "confluence"],
     "figma": ["figma"],
     "slack": ["slack"],
-    "jira": ["jira"],
     "notion": ["notion"],
     "linear": ["linear"],
     "vercel": ["vercel"],
@@ -276,7 +276,7 @@ def extract_experience_years(text: str) -> float | None:
                 start_years.append(int(start_match.group(1)))
         if start_years:
             earliest = min(start_years)
-            total_exp = 2025 - earliest
+            total_exp = datetime.now().year - earliest
             if 0 < total_exp <= 50:
                 return float(total_exp)
 
@@ -337,10 +337,9 @@ def calculate_match_score(job: dict, resume: dict) -> tuple[int, list[str]]:
 
     matched = []
     for skill in resume_skills:
-        skill_lower = skill.lower()
-        if skill_lower in job_skills:
+        if skill in job_skills:
             matched.append(skill)
-        elif skill_lower in all_job_text:
+        elif skill in all_job_text:
             matched.append(skill)
 
     if not resume_skills or len(matched) == 0:

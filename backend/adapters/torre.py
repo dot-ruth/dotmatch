@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job
+from adapters.common import fetch_json, is_dev_job
 
 
 async def fetch_torre() -> list[dict]:
@@ -9,7 +9,8 @@ async def fetch_torre() -> list[dict]:
 
     async with httpx.AsyncClient(timeout=30) as client:
         try:
-            resp = await client.post(
+            data = await fetch_json(
+                client, "POST",
                 "https://search.torre.co/opportunities/_search/",
                 params={"offset": 0, "size": 100},
                 json={
@@ -22,10 +23,9 @@ async def fetch_torre() -> list[dict]:
                 },
                 headers={"Content-Type": "application/json"},
             )
-            if resp.status_code != 200:
+            if not data:
                 return jobs
 
-            data = resp.json()
             for item in data.get("results", []):
                 objective = item.get("objective", "")
                 if not objective or not is_dev_job(objective):

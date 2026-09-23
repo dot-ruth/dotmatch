@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job, parse_iso_date
+from adapters.common import fetch_json, is_dev_job, parse_iso_date
 
 ASHBY_COMPANIES = [
     "openai", "linear", "ramp", "notion", "plaid",
@@ -17,14 +17,14 @@ async def fetch_ashby() -> list[dict]:
     async with httpx.AsyncClient(timeout=15) as client:
         for slug in ASHBY_COMPANIES:
             try:
-                resp = await client.get(
+                data = await fetch_json(
+                    client, "GET",
                     f"https://api.ashbyhq.com/posting-api/job-board/{slug}",
                     params={"includeCompensation": "true"},
                 )
-                if resp.status_code != 200:
+                if not data:
                     continue
 
-                data = resp.json()
                 for item in data.get("jobPostings", []):
                     title = item.get("title", "")
                     if not title or not is_dev_job(title):

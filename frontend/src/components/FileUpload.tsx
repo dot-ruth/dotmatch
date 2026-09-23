@@ -9,7 +9,7 @@ interface FileUploadProps {
 }
 
 export default function FileUpload({
-  accept = ".pdf,.doc,.docx",
+  accept = ".pdf,.doc,.docx,.txt",
   maxSizeMB = 5,
   onUpload,
 }: FileUploadProps) {
@@ -51,8 +51,8 @@ export default function FileUpload({
     }
 
     const ext = file.name.split(".").pop()?.toLowerCase();
-    if (!["pdf", "doc", "docx"].includes(ext || "")) {
-      setError("Only PDF and Word documents are supported.");
+    if (!["pdf", "doc", "docx", "txt"].includes(ext || "")) {
+      setError("Only PDF, Word, and text files are supported.");
       return;
     }
 
@@ -109,7 +109,7 @@ export default function FileUpload({
                 Drop your resume here or click to browse
               </p>
               <p id={helpId} className="text-xs text-muted dark:text-muted-dark">
-                PDF or Word document, up to {maxSizeMB}MB. You can also drag and drop a file here.
+                PDF, Word, or text file, up to {maxSizeMB}MB. You can also drag and drop a file here.
               </p>
             </div>
           </div>

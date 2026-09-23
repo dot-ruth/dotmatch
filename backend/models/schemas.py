@@ -42,11 +42,6 @@ class JobSourceCount(BaseModel):
     job_count: int
 
 
-class JobSource(BaseModel):
-    name: str
-    type: str
-
-
 class ResumeProfile(BaseModel):
     id: str
     filename: str

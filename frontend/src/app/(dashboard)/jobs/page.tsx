@@ -70,6 +70,10 @@ export default function JobsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
+          <p className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.18em] text-forest dark:text-forest-muted font-bold mb-2">
+            <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-forest dark:bg-forest-muted" />
+            Browse
+          </p>
           <h1 className="font-display text-2xl lg:text-3xl font-bold text-ink dark:text-ink-dark mb-1">
             Jobs
           </h1>
@@ -103,11 +107,11 @@ export default function JobsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-describedby="job-search-help job-results-status"
-              className="w-full pl-10 pr-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark text-ink dark:text-ink-dark placeholder-subtle dark:placeholder-subtle-dark rounded-xl focus:outline-none focus:ring-2 focus:ring-forest/30 dark:focus:ring-forest-muted/30 focus:border-forest/50 dark:focus:border-forest-muted/50 transition-all duration-200 text-sm"
+              className="w-full pl-10 pr-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark text-ink dark:text-ink-dark placeholder-subtle dark:placeholder-subtle-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-forest/30 dark:focus:ring-forest-muted/30 focus:border-forest/50 dark:focus:border-forest-muted/50 transition-all duration-200 text-sm"
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 px-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark rounded-xl cursor-pointer hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-all duration-200" title="Show jobs that do not require residence in a specific country.">
+              <label className="flex items-center gap-2 px-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark rounded-lg cursor-pointer hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-all duration-200" title="Show jobs that do not require residence in a specific country.">
               <input
                 type="checkbox"
                 checked={worldwideOnly}

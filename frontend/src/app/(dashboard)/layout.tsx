@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
+import Logo from "@/components/Logo";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -20,9 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen flex flex-col md:flex-row bg-surface dark:bg-surface-dark">
       {/* Mobile top bar */}
       <header className="md:hidden flex items-center justify-between px-5 py-4 border-b border-border dark:border-border-dark bg-surface dark:bg-surface-dark sticky top-0 z-30">
-        <Link href="/" className="font-display text-base font-semibold text-ink dark:text-ink-dark">
-          Dot Match
-        </Link>
+        <Logo />
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <button
@@ -75,11 +74,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border dark:border-border-dark h-14">
           {!collapsed ? (
-            <Link href="/" className="pl-5 font-display text-base font-semibold text-ink dark:text-ink-dark">
-              Dot Match
-            </Link>
+            <span className="pl-5">
+              <Logo />
+            </span>
           ) : (
-            <div className="w-2.5" />
+            <span className="mx-auto">
+              <Logo markOnly />
+            </span>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -136,7 +137,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main id="main" className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>
   );

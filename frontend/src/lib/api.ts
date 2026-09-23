@@ -8,18 +8,7 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, config: RequestInit = {}): Promise<T> {
-    let ep = endpoint;
-    if (ep.endsWith("/") || ep.includes("?")) {
-      // already has slash or query
-    } else if (ep.split("/").length >= 3) {
-      const parts = ep.split("?");
-      if (!parts[0].endsWith("/")) {
-        parts[0] += "/";
-        ep = parts.join("?");
-      }
-    }
-
-    const url = `${this.baseUrl}${ep}`;
+    const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = { ...config.headers as Record<string, string> };
     if (!(config.body instanceof FormData)) {
       headers["Content-Type"] = "application/json";
@@ -31,7 +20,6 @@ class ApiClient {
       const error = await response.json().catch(() => ({ detail: "An error occurred" }));
       throw new Error(error.detail || `HTTP ${response.status}`);
     }
-    if (response.status === 204) return undefined as T;
     return response.json();
   }
 
@@ -43,16 +31,7 @@ class ApiClient {
   }
 
   async getJobs(params?: Record<string, unknown>) {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
-        }
-      });
-    }
-    const qs = searchParams.toString();
-    return this.get<PaginatedResponse<Job>>(`/api/jobs/${qs ? `?${qs}` : ""}`);
+    return this.get<PaginatedResponse<Job>>(`/api/jobs/${toQuery(params)}`);
   }
   async getJob(id: string) {
     return this.get<Job>(`/api/jobs/${id}`);
@@ -66,48 +45,45 @@ class ApiClient {
   async uploadResume(file: File) {
     const formData = new FormData();
     formData.append("file", file);
-    const url = `${this.baseUrl}/api/jobs/resume/`;
-    const response = await fetch(url, { method: "POST", body: formData });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: "Upload failed" }));
-      throw new Error(error.detail || `HTTP ${response.status}`);
-    }
-    return response.json() as Promise<ResumeProfile>;
+    return this.request<ResumeProfile>("/api/jobs/resume", { method: "POST", body: formData });
   }
   async getResumeProfile() {
     return this.get<ResumeProfile | null>("/api/jobs/resume/profile");
   }
   async getMatchedJobs(params?: Record<string, unknown>) {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
-        }
-      });
-    }
-    const qs = searchParams.toString();
-    return this.get<MatchedJob[]>(`/api/jobs/matched/${qs ? `?${qs}` : ""}`);
+    return this.get<MatchedJob[]>(`/api/jobs/matched${toQuery(params)}`);
   }
+}
+
+function toQuery(params?: Record<string, unknown>): string {
+  if (!params) return "";
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) searchParams.append(key, String(value));
+  });
+  const qs = searchParams.toString();
+  return qs ? `?${qs}` : "";
 }
 
 export const api = new ApiClient(API_BASE_URL);
 
+export function formatSalary(min: number | null, max: number | null): string | null {
+  if (!min || !max) return null;
+  return `$${(min / 1000).toFixed(0)}k–$${(max / 1000).toFixed(0)}k`;
+}
+
 export function formatDate(dateStr: string | null): string | null {
   if (!dateStr) return null;
-  try {
-    const d = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - d.getTime();
-    const diffHrs = diffMs / (1000 * 60 * 60);
-    if (diffHrs < 1) return "just now";
-    if (diffHrs < 24) return `${Math.floor(diffHrs)}h ago`;
-    const diffDays = diffHrs / 24;
-    if (diffDays < 7) return `${Math.floor(diffDays)}d ago`;
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  } catch {
-    return null;
-  }
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  const diffSec = Math.round((d.getTime() - Date.now()) / 1000);
+  const abs = Math.abs(diffSec);
+  if (abs < 60) return "just now";
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  if (abs < 3600) return rtf.format(Math.round(diffSec / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
+  if (abs < 7 * 86400) return rtf.format(Math.round(diffSec / 86400), "day");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export interface Job {

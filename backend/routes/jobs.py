@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 
 from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob, JobSourceCount
-from services.job_store import job_store
+from services.job_store import job_store, _is_worldwide
 from services.job_discovery import discover_all_jobs
 from services.resume_service import parse_resume_text, calculate_match_score
 
@@ -58,7 +58,6 @@ async def list_matched_jobs(
             ))
 
     if worldwide_only:
-        from services.job_store import _is_worldwide
         matched = [m for m in matched if _is_worldwide(m.job.model_dump())]
 
     matched.sort(key=lambda m: m.match_score, reverse=True)
@@ -121,8 +120,6 @@ async def upload_resume(file: UploadFile = File(...)):
                     text += page_text + "\n"
         except Exception:
             raise HTTPException(status_code=400, detail="Failed to parse PDF file")
-    elif ext == "txt":
-        text = content.decode("utf-8", errors="ignore")
     else:
         text = content.decode("utf-8", errors="ignore")
 

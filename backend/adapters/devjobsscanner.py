@@ -2,7 +2,7 @@ import re
 
 import httpx
 
-from adapters.common import is_dev_job
+from adapters.common import fetch_text, is_dev_job
 
 
 async def fetch_devjobsscanner() -> list[dict]:
@@ -11,12 +11,8 @@ async def fetch_devjobsscanner() -> list[dict]:
 
     async with httpx.AsyncClient(timeout=30) as client:
         try:
-            resp = await client.get("https://devjobsscanner.com/rss/")
-            if resp.status_code != 200:
-                return jobs
-
-            xml = resp.text
-            items = re.findall(r"<item>(.*?)</item>", xml, re.DOTALL)
+            xml = await fetch_text(client, "https://devjobsscanner.com/rss/")
+            items = re.findall(r"<item>(.*?)</item>", xml or "", re.DOTALL)
 
             for item_xml in items:
                 title_match = re.search(r"<title><!\[CDATA\[(.*?)\]\]></title>", item_xml)

@@ -2,28 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api, Job, formatDate, JobSourceCount } from "@/lib/api";
+import { api, Job, formatDate, formatSalary, JobSourceCount } from "@/lib/api";
+import { JOB_SOURCES as SOURCES } from "@/lib/sources";
 import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
-
-const SOURCES = [
-  { name: "RemoteOK", type: "remoteok" },
-  { name: "We Work Remotely", type: "weworkremotely" },
-  { name: "Remotive", type: "remotive" },
-  { name: "Arbeitnow", type: "arbeitnow" },
-  { name: "Jobicy", type: "jobicy" },
-  { name: "Findwork", type: "findwork" },
-  { name: "DevJobsScanner", type: "devjobsscanner" },
-  { name: "Himalayas", type: "himalayas" },
-  { name: "FreeHire", type: "freehire" },
-  { name: "RemoteJobs.org", type: "remotejobs_org" },
-  { name: "JobsBase", type: "jobsbase" },
-  { name: "Lever", type: "lever" },
-  { name: "Ashby", type: "ashby" },
-  { name: "Torre", type: "torre" },
-  { name: "HN Hiring", type: "hn_hiring" },
-];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -74,7 +57,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="p-6 lg:p-10">
-        <div className="animate-pulse space-y-6">
+        <div className="space-y-6">
           <div className="h-8 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-48 shimmer" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
@@ -92,6 +75,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
         <div>
+          <p className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.18em] text-forest dark:text-forest-muted font-bold mb-2">
+            <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-forest dark:bg-forest-muted" />
+            Overview
+          </p>
           <h1 className="font-display text-2xl lg:text-3xl font-bold text-ink dark:text-ink-dark mb-1">
             Dashboard
           </h1>
@@ -219,7 +206,10 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="divide-y divide-border dark:divide-border-dark">
-            {recentJobs.map((job) => (
+            {recentJobs.map((job) => {
+              const salary = formatSalary(job.salary_min, job.salary_max);
+              const posted = formatDate(job.posted_at);
+              return (
               <button
                 key={job.id}
                 onClick={() => router.push(`/jobs/${job.id}`)}
@@ -235,20 +225,21 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-4 shrink-0 ml-4">
-                  {job.salary_min && job.salary_max && (
-                    <span className="text-xs font-mono text-ember dark:text-ember-muted">
-                      ${(job.salary_min / 1000).toFixed(0)}k–${(job.salary_max / 1000).toFixed(0)}k
+                  {salary && (
+                    <span className="text-xs font-mono text-ember dark:text-ember-muted tabular-nums">
+                      {salary}
                     </span>
                   )}
                   <Badge variant="muted">{job.source_type}</Badge>
-                  {formatDate(job.posted_at) && (
+                  {posted && (
                     <span className="text-[10px] font-mono text-subtle dark:text-subtle-dark">
-                      {formatDate(job.posted_at)}
+                      {posted}
                     </span>
                   )}
                 </div>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>

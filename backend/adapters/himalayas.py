@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job, parse_unix_timestamp
+from adapters.common import fetch_json, is_dev_job, parse_unix_timestamp
 
 
 async def fetch_himalayas() -> list[dict]:
@@ -13,14 +13,14 @@ async def fetch_himalayas() -> list[dict]:
     async with httpx.AsyncClient(timeout=30) as client:
         for _ in range(max_pages):
             try:
-                resp = await client.get(
+                data = await fetch_json(
+                    client, "GET",
                     "https://himalayas.app/jobs/api",
                     params={"limit": limit, "offset": offset},
                 )
-                if resp.status_code != 200:
+                if not data:
                     break
 
-                data = resp.json()
                 page_jobs = data.get("jobs", [])
                 if not page_jobs:
                     break

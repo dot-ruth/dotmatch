@@ -1,7 +1,17 @@
+import json
 import logging
+import os
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+
+def _snapshot_path() -> str:
+    base = os.environ.get(
+        "DOTMATCH_SNAPSHOT",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "store.json"),
+    )
+    return os.path.abspath(base)
 
 WORLDWIDE_KEYWORDS = ("worldwide", "global", "anywhere", "distributed")
 REGION_RESTRICTED = ("remote -", "remote,", "remote us", "remote usa", "remote eu",
@@ -39,6 +49,7 @@ class JobStore:
         self._keys: set[str] = set()
         self._id_index: dict[str, dict] = {}
         self._resume: dict | None = None
+        self._load_snapshot()
 
     def add_jobs(self, jobs: list[dict], skip_ghosts: bool = True) -> int:
         """Add jobs to store, deduplicating by title+company.
@@ -52,10 +63,15 @@ class JobStore:
         """
         new_count = 0
         for job in jobs:
-            if skip_ghosts and not job.get("url", "").strip():
+            if skip_ghosts and not (job.get("url") or "").strip():
                 continue
 
-            key = f"{job['title'].lower()}|{job['company']['name'].lower()}"
+            title = (job.get("title") or "").strip()
+            company_name = ((job.get("company") or {}).get("name") or "").strip()
+            if not title or not company_name:
+                continue
+
+            key = f"{title.lower()}|{company_name.lower()}"
             if key in self._keys:
                 continue
 
@@ -66,6 +82,8 @@ class JobStore:
             self._keys.add(key)
             self._id_index[job["id"]] = job
             new_count += 1
+        if new_count:
+            self._save_snapshot()
         return new_count
 
     def get_all(self) -> list[dict]:
@@ -103,7 +121,7 @@ class JobStore:
         def _sort_key(j):
             return j.get("posted_at") or j.get("created_at") or ""
 
-        filtered.sort(key=_sort_key, reverse=True)
+        filtered = sorted(filtered, key=_sort_key, reverse=True)
         total = len(filtered)
         return filtered[offset:offset + limit], total
 
@@ -127,11 +145,40 @@ class JobStore:
             "education": education,
             "created_at": datetime.now().isoformat(),
         }
+        self._save_snapshot()
         return self._resume
 
     def get_resume(self) -> dict | None:
         """Get the stored resume profile."""
         return self._resume
+
+    def _save_snapshot(self) -> None:
+        """Persist jobs + resume to disk (stdlib json). Never crashes the app."""
+        try:
+            path = _snapshot_path()
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"jobs": self._jobs, "resume": self._resume}, f)
+        except Exception:
+            logger.warning("snapshot save failed", exc_info=True)
+
+    def _load_snapshot(self) -> None:
+        """Restore jobs + resume from disk. Missing/corrupt file = fresh start."""
+        try:
+            with open(_snapshot_path(), encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, ValueError):
+            return
+        jobs = [j for j in data.get("jobs") or [] if isinstance(j, dict) and j.get("id")]
+        self._jobs = jobs
+        self._counter = len(jobs)
+        self._id_index = {j["id"]: j for j in jobs}
+        self._keys = {
+            f"{(j.get('title') or '').lower()}|{((j.get('company') or {}).get('name') or '').lower()}"
+            for j in jobs
+        }
+        if isinstance(data.get("resume"), dict):
+            self._resume = data["resume"]
 
 
 job_store = JobStore()

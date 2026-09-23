@@ -44,19 +44,16 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['"Playfair Display"', "Georgia", "serif"],
+        display: ['"Space Grotesk"', '"Inter"', "system-ui", "sans-serif"],
         body: ['"Source Sans 3"', "system-ui", "sans-serif"],
         mono: ['"IBM Plex Mono"', "ui-monospace", "monospace"],
       },
       boxShadow: {
         card: "0 1px 3px rgba(28, 25, 23, 0.08), 0 1px 2px rgba(28, 25, 23, 0.06)",
-        "card-hover": "0 4px 12px rgba(28, 25, 23, 0.12), 0 2px 4px rgba(28, 25, 23, 0.08)",
-        elevated: "0 10px 30px rgba(28, 25, 23, 0.12), 0 4px 8px rgba(28, 25, 23, 0.06)",
       },
       animation: {
         marquee: "marquee 8s linear infinite",
         "fade-in": "fadeIn 0.3s ease-out",
-        shimmer: "shimmer 2s infinite",
       },
       keyframes: {
         marquee: {
@@ -66,10 +63,6 @@ const config: Config = {
         fadeIn: {
           "0%": { opacity: "0", transform: "translateY(4px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
         },
       },
     },

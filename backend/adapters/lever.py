@@ -1,6 +1,6 @@
 import httpx
 
-from adapters.common import is_dev_job, parse_iso_date
+from adapters.common import fetch_json, is_dev_job, parse_iso_date
 
 LEVER_COMPANIES = [
     "netflix", "shopify", "cloudflare", "ramp", "figma",
@@ -17,14 +17,15 @@ async def fetch_lever() -> list[dict]:
     async with httpx.AsyncClient(timeout=15) as client:
         for slug in LEVER_COMPANIES:
             try:
-                resp = await client.get(
+                data = await fetch_json(
+                    client, "GET",
                     f"https://api.lever.co/v0/postings/{slug}",
                     params={"mode": "json"},
                 )
-                if resp.status_code != 200:
+                if not data:
                     continue
 
-                for item in resp.json():
+                for item in data:
                     title = item.get("text", "")
                     if not title or not is_dev_job(title):
                         continue

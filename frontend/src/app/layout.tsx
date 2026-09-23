@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s | Dot Match",
   },
   description:
-    "Discover remote software engineering jobs aggregated from 14 sources. Search, filter, and apply to the best dev jobs — all in one place.",
+    "Discover remote software engineering jobs aggregated from 15 sources. Search, filter, and apply to the best dev jobs — all in one place.",
   keywords: [
     "remote jobs",
     "software engineering",
@@ -26,14 +26,14 @@ export const metadata: Metadata = {
     siteName: "Dot Match",
     title: "Dot Match — Remote Software Engineering Jobs",
     description:
-      "Discover remote software engineering jobs aggregated from 14 sources. Search, filter, and apply to the best dev jobs.",
+      "Discover remote software engineering jobs aggregated from 15 sources. Search, filter, and apply to the best dev jobs.",
     url: "https://dot-match.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
     title: "Dot Match — Remote Software Engineering Jobs",
     description:
-      "Discover remote software engineering jobs aggregated from 14 sources.",
+      "Discover remote software engineering jobs aggregated from 15 sources.",
   },
   robots: {
     index: true,
@@ -70,6 +70,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="bg-surface text-ink font-body antialiased dark:bg-surface-dark dark:text-ink-dark" suppressHydrationWarning>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-[70] focus:m-3 focus:rounded-full focus:bg-forest focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to content
+        </a>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

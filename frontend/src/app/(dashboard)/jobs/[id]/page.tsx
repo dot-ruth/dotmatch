@@ -37,7 +37,7 @@ export default function JobDetailPage() {
     return (
       <div className="relative p-6 lg:p-10 min-h-screen">
         <div className="relative z-10">
-          <div className="animate-pulse space-y-6">
+          <div className="space-y-6">
             <div className="h-5 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-20 shimmer" />
             <div className="h-10 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-96 shimmer" />
             <div className="h-96 bg-surface-warm dark:bg-surface-dark-warm rounded-xl shimmer" />
