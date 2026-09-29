@@ -52,7 +52,7 @@ const config: Config = {
         card: "0 1px 3px rgba(28, 25, 23, 0.08), 0 1px 2px rgba(28, 25, 23, 0.06)",
       },
       animation: {
-        marquee: "marquee 8s linear infinite",
+        marquee: "marquee 24s linear infinite",
         "fade-in": "fadeIn 0.3s ease-out",
       },
       keyframes: {

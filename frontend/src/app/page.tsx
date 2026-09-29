@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import Logo from "@/components/Logo";
@@ -9,7 +10,7 @@ import { SOURCE_NAMES as sources } from "@/lib/sources";
 
 /*
  * Senior-pass rules for this page:
- * - Radius: buttons 8px, cards 16px, chips 6px. One rule, no exceptions.
+ * - Radius: buttons 8px, cards 16px (HOW cards 24px), chips 6px.
  * - Accent lock: forest is the only accent (CTAs, status, key numerals).
  *   Supporting data stays neutral ink/muted. No second hue.
  * - Elevation: one ultra-faint natural shadow for floating cards, hairlines elsewhere.
@@ -58,6 +59,89 @@ const faqs = [
   {
     q: "How fresh are the listings?",
     a: "Jobs are sorted by their original posting date, newest first. Hit Discover Fresh Jobs on the dashboard any time to pull the latest from all sources.",
+  },
+];
+
+const steps = [
+  {
+    n: "Step 1",
+    t: "Aggregate",
+    d: "Fresh software roles from 15 boards land in one feed. Deduplicated, dev-only, sorted by posted date.",
+    tabBg: "bg-forest/10 dark:bg-forest-muted/15",
+    tabText: "text-forest dark:text-forest-muted",
+    visual: (
+      <div className="w-[200px] rotate-2 rounded-xl border border-border dark:border-white/10 bg-surface dark:bg-white/[0.04] p-3">
+        {[
+          { r: "Senior Backend", w: "w-24", c: "bg-forest dark:bg-forest-muted" },
+          { r: "Frontend React", w: "w-20", c: "bg-forest/60 dark:bg-forest-muted/60" },
+          { r: "DevOps Engineer", w: "w-16", c: "bg-ember/70 dark:bg-ember-muted/70" },
+        ].map((row) => (
+          <div key={row.r} className="flex items-center gap-2 py-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${row.c}`} />
+            <div>
+              <div className={`h-1.5 rounded-full bg-ink/15 dark:bg-white/15 ${row.w}`} />
+              <div className="h-1.5 rounded-full bg-ink/10 dark:bg-white/10 w-12 mt-1" />
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    n: "Step 2",
+    t: "Search",
+    d: "One search bar across every source. Filter worldwide, by salary, and by stack.",
+    tabBg: "bg-forest/10 dark:bg-forest-muted/15",
+    tabText: "text-forest dark:text-forest-muted",
+    visual: (
+      <div className="w-[216px] -rotate-1">
+        <div className="flex items-center gap-2 rounded-full border border-border dark:border-white/15 bg-surface dark:bg-white/[0.04] px-4 py-2.5">
+          <svg className="w-3.5 h-3.5 text-muted dark:text-muted-dark shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" />
+          </svg>
+          <span className="text-xs text-muted dark:text-muted-dark">Senior backend…</span>
+        </div>
+        <div className="flex justify-center gap-1.5 mt-2.5">
+          {["Worldwide", "$150k+", "Remote"].map((c) => (
+            <span key={c} className="text-[10px] font-mono px-2 py-1 rounded-md bg-surface-deep dark:bg-white/10 text-muted dark:text-muted-dark">{c}</span>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    n: "Step 3",
+    t: "Match",
+    d: "Upload your resume once. Every open role is scored 0–100 against your skills.",
+    tabBg: "bg-forest/10 dark:bg-forest-muted/15",
+    tabText: "text-forest dark:text-forest-muted",
+    visual: (
+      <div className="text-center">
+        <p style={{ fontFamily: GROTESK }} className="font-bold text-[36px] leading-none text-forest dark:text-forest-muted tabular-nums">92%</p>
+        <div className="w-[180px] h-2 rounded-full bg-surface-deep dark:bg-white/10 overflow-hidden mt-2.5">
+          <div className="h-full w-[92%] rounded-full bg-forest dark:bg-forest-muted" />
+        </div>
+        <p className="font-mono text-[10px] text-subtle dark:text-subtle-dark mt-1.5">12 skills matched</p>
+      </div>
+    ),
+  },
+  {
+    n: "Step 4",
+    t: "Apply",
+    d: "Every listing links straight to the employer. No dead ends, no ghost jobs.",
+    tabBg: "bg-forest/10 dark:bg-forest-muted/15",
+    tabText: "text-forest dark:text-forest-muted",
+    visual: (
+      <div className="flex flex-col items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-ink dark:bg-white px-6 py-2.5 text-[13px] font-bold text-white dark:text-ink">
+          Apply now
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M7 7h10v10" />
+          </svg>
+        </span>
+        <span className="font-mono text-[10px] text-subtle dark:text-subtle-dark">direct link · no ghost jobs</span>
+      </div>
+    ),
   },
 ];
 
@@ -295,22 +379,39 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-6 lg:px-12 py-16 lg:py-24">
         <Reveal>
           <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-forest dark:text-forest-muted font-bold text-center">How it works</p>
-          <h2 style={{ fontFamily: GROTESK }} className="text-center font-bold tracking-tight text-[28px] sm:text-[36px] mt-2 text-balance">Three steps to hired</h2>
+          <h2 style={{ fontFamily: GROTESK }} className="text-center font-bold tracking-tight text-[28px] sm:text-[36px] mt-2 text-balance">Four steps to hired</h2>
         </Reveal>
-        <div className="grid md:grid-cols-3 gap-5 mt-10">
-          {[
-            { n: "01", t: "We aggregate", d: "Fresh software roles pulled from 15 boards every cycle. Deduplicated, dev-only." },
-            { n: "02", t: "You search", d: "One search bar across every source. Filter worldwide, salary, stack." },
-            { n: "03", t: "You match", d: "Upload your resume and get every job scored against your skills." },
-          ].map((s, i) => (
-            <Reveal key={s.n} delay={i * 80}>
-              <div className="rounded-2xl border border-border dark:border-border-dark bg-surface-warm dark:bg-white/[0.03] p-6 relative overflow-hidden h-full">
-                <span aria-hidden="true" className="absolute -top-1 right-3 text-[64px] font-bold opacity-10" style={{ fontFamily: GROTESK }}>{s.n}</span>
-                <h3 style={{ fontFamily: GROTESK }} className="font-bold text-[18px]">{s.t}</h3>
-                <p className="text-[13px] text-muted dark:text-muted-dark mt-2 leading-relaxed">{s.d}</p>
-              </div>
-            </Reveal>
-          ))}
+
+        <div className="relative mx-auto mt-12 max-w-4xl">
+          <SideNote className="-left-2 top-4 xl:-left-28" down>
+            fresh roles,<br />zero tabs
+          </SideNote>
+          <SideNote className="-right-2 top-4 text-right xl:-right-28 [&_svg]:ml-auto" flip down>
+            one search,<br />every board
+          </SideNote>
+          <SideNote className="-left-2 bottom-8 xl:-left-28">
+            scored against<br />your skills
+          </SideNote>
+          <SideNote className="-right-2 bottom-8 text-right xl:-right-28 [&_svg]:ml-auto" flip>
+            apply at<br />the source
+          </SideNote>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            {steps.map((s, i) => (
+              <Reveal key={s.t} delay={(i % 2) * 80} className="h-full">
+                <div className="h-full rounded-[24px] border border-border dark:border-white/10 bg-white dark:bg-[#1E1B18] p-4 pt-5 shadow-[0_2px_12px_rgba(28,25,23,0.05)]">
+                  <p className="px-2 text-[13px] text-muted dark:text-muted-dark">{s.n}</p>
+                  <div className="flex h-[168px] items-center justify-center">{s.visual}</div>
+                  <div className={`relative z-10 mx-1 -mt-6 rounded-2xl px-5 pb-4 pt-3.5 ${s.tabBg}`}>
+                    <span aria-hidden="true" className="absolute right-0 top-0 h-10 w-10 bg-white dark:bg-[#1E1B18]" style={{ clipPath: "polygon(100% 0, 0 0, 100% 100%)" }} />
+                    <p style={{ fontFamily: GROTESK }} className={`font-bold text-[21px] tracking-tight ${s.tabText}`}>{s.t}</p>
+                    <div className="my-2.5 h-px bg-ink/10 dark:bg-white/10" />
+                    <p className="text-[13px] leading-relaxed text-ink/70 dark:text-ink-dark/70">{s.d}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -521,5 +622,34 @@ export default function HomePage() {
           </div>
       </footer>
     </main>
+  );
+}
+
+function SideNote({
+  className = "",
+  flip = false,
+  down = false,
+  children,
+}: {
+  className?: string;
+  flip?: boolean;
+  down?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div aria-hidden="true" className={`absolute hidden w-[124px] xl:block ${className}`}>
+      {down ? (
+        <svg width="46" height="30" viewBox="0 0 46 30" fill="none" className={`text-forest dark:text-forest-muted ${flip ? "-scale-x-100" : ""}`}>
+          <path d="M5 8 C 16 10, 28 12, 39 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M31 18 L39 18 L33.6 11.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg width="46" height="26" viewBox="0 0 46 26" fill="none" className={`text-forest dark:text-forest-muted ${flip ? "-scale-x-100" : ""}`}>
+          <path d="M4 20 C 16 20, 28 16, 38 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M32 5 L39 7 L35 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+      <p className="mt-1 -rotate-2 text-[13px] italic leading-snug text-ink/45 dark:text-ink-dark/45">{children}</p>
+    </div>
   );
 }
