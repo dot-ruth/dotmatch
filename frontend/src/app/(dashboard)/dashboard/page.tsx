@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, Job, formatDate, formatSalary, JobSourceCount } from "@/lib/api";
 import { JOB_SOURCES as SOURCES } from "@/lib/sources";
@@ -19,22 +19,11 @@ export default function DashboardPage() {
   const [discoverMsg, setDiscoverMsg] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const autoDiscovered = useRef(false);
 
   useEffect(() => {
     loadJobs();
     loadCounts();
   }, []);
-
-  // First visit with an empty store: run discovery once automatically so
-  // the dashboard never sits empty waiting for a manual refresh.
-  useEffect(() => {
-    if (!jobsLoading && !loadError && totalJobs === 0 && !autoDiscovered.current) {
-      autoDiscovered.current = true;
-      handleDiscover();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobsLoading, loadError, totalJobs]);
 
   async function loadJobs() {
     try {
@@ -86,11 +75,6 @@ export default function DashboardPage() {
   if (jobsLoading) {
     return (
       <div className="p-6 lg:p-10">
-        {discovering && (
-          <p className="mb-6 text-sm text-muted dark:text-muted-dark" role="status">
-            No stored jobs yet — pulling fresh listings from all sources. This takes about a minute.
-          </p>
-        )}
         <div className="space-y-6">
           <div className="h-8 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-48 shimmer" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
