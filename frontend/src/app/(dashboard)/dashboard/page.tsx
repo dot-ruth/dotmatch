@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, Job, formatDate, formatSalary, JobSourceCount } from "@/lib/api";
 import { JOB_SOURCES as SOURCES } from "@/lib/sources";
@@ -13,29 +13,58 @@ export default function DashboardPage() {
   const [totalJobs, setTotalJobs] = useState(0);
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [sourceCounts, setSourceCounts] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [countsLoading, setCountsLoading] = useState(true);
   const [discovering, setDiscovering] = useState(false);
   const [discoverMsg, setDiscoverMsg] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const autoDiscovered = useRef(false);
 
   useEffect(() => {
-    loadData();
+    loadJobs();
+    loadCounts();
   }, []);
 
-  async function loadData() {
-    setLoadError(null);
+  // First visit with an empty store: run discovery once automatically so
+  // the dashboard never sits empty waiting for a manual refresh.
+  useEffect(() => {
+    if (!jobsLoading && !loadError && totalJobs === 0 && !autoDiscovered.current) {
+      autoDiscovered.current = true;
+      handleDiscover();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobsLoading, loadError, totalJobs]);
+
+  async function loadJobs() {
     try {
-      const [res, sourceResults] = await Promise.all([api.getJobs({ limit: 10 }), api.getSourceCounts()]);
+      const res = await api.getJobs({ limit: 10 });
       setTotalJobs(res.total || 0);
       setRecentJobs(res.items || []);
-      setSourceCounts(toSourceCountMap(sourceResults));
       setLastRefresh(new Date().toLocaleString());
     } catch {
       setLoadError("We couldn't load your job dashboard. Check your connection and try again.");
     } finally {
-      setLoading(false);
+      setJobsLoading(false);
     }
+  }
+
+  async function loadCounts() {
+    try {
+      const sourceResults = await api.getSourceCounts();
+      setSourceCounts(toSourceCountMap(sourceResults));
+    } catch {
+      // Counts are non-critical; the grid renders zeros until a retry succeeds.
+    } finally {
+      setCountsLoading(false);
+    }
+  }
+
+  async function loadData() {
+    setJobsLoading(true);
+    setCountsLoading(true);
+    setLoadError(null);
+    await Promise.all([loadJobs(), loadCounts()]);
   }
 
   async function handleDiscover() {
@@ -54,9 +83,14 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
+  if (jobsLoading) {
     return (
       <div className="p-6 lg:p-10">
+        {discovering && (
+          <p className="mb-6 text-sm text-muted dark:text-muted-dark" role="status">
+            No stored jobs yet — pulling fresh listings from all sources. This takes about a minute.
+          </p>
+        )}
         <div className="space-y-6">
           <div className="h-8 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-48 shimmer" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -166,7 +200,7 @@ export default function DashboardPage() {
                 <span className="text-sm font-mono text-muted dark:text-muted-dark truncate">{source.name}</span>
               </div>
               <span className="text-xs font-mono text-forest dark:text-forest-muted shrink-0" aria-label={`${sourceCounts[source.type] || 0} stored jobs`}>
-                {sourceCounts[source.type] || 0}
+                {countsLoading ? "…" : (sourceCounts[source.type] || 0)}
               </span>
             </div>
           ))}
