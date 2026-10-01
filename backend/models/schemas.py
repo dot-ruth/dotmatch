@@ -57,3 +57,10 @@ class MatchedJob(BaseModel):
     job: Job
     match_score: int
     matched_skills: list[str]
+
+
+class ResumeProfileUpdate(BaseModel):
+    skills: list[str] | None = None
+    job_titles: list[str] | None = None
+    experience_years: float | None = None
+    education: list[str] | None = None

@@ -62,6 +62,9 @@ class ApiClient {
   async getResumeProfile() {
     return this.get<ResumeProfile | null>("/api/jobs/resume/profile");
   }
+  async updateResumeProfile(patch: { skills?: string[]; job_titles?: string[]; experience_years?: number | null; education?: string[] }) {
+    return this.request<ResumeProfile>("/api/jobs/resume/profile", { method: "PATCH", body: JSON.stringify(patch) });
+  }
   async getMatchedJobs(params?: Record<string, unknown>) {
     return this.get<MatchedJob[]>(`/api/jobs/matched${toQuery(params)}`);
   }

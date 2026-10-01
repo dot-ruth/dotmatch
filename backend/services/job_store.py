@@ -152,6 +152,16 @@ class JobStore:
         """Get the stored resume profile."""
         return self._resume
 
+    def update_resume(self, **fields) -> dict | None:
+        """Update stored resume profile fields. Returns updated profile or None."""
+        if not self._resume:
+            return None
+        for key in ("skills", "job_titles", "experience_years", "education"):
+            if fields.get(key) is not None:
+                self._resume[key] = fields[key]
+        self._save_snapshot()
+        return self._resume
+
     def _save_snapshot(self) -> None:
         """Persist jobs + resume to disk (stdlib json). Never crashes the app."""
         try:

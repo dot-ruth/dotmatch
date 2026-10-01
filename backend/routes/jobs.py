@@ -4,7 +4,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 
-from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob, JobSourceCount
+from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob, JobSourceCount, ResumeProfileUpdate
 from services.job_store import job_store, _is_worldwide
 from services.job_discovery import discover_all_jobs
 from services.resume_service import parse_resume_text, calculate_match_score
@@ -139,3 +139,12 @@ async def upload_resume(file: UploadFile = File(...)):
 async def get_resume_profile():
     """Get the current resume profile."""
     return job_store.get_resume()
+
+
+@router.patch("/resume/profile", response_model=ResumeProfile)
+async def update_resume_profile(patch: ResumeProfileUpdate):
+    """Update editable resume profile fields (skills, roles, experience, education)."""
+    updated = job_store.update_resume(**patch.model_dump())
+    if not updated:
+        raise HTTPException(status_code=404, detail="No resume uploaded. Upload a resume first.")
+    return updated

@@ -1,8 +1,11 @@
 """Adapter parser checks: WWR items, Jobright cards, Jobgether mapping. Run: pytest."""
 
+import os
+
 from adapters.jobgether import _map_job
 from adapters.jobright import _parse_card, _parse_posted_at
 from adapters.weworkremotely import _parse_item, _parse_skills
+from services.job_store import JobStore
 
 WWR_ITEM = """<item>
 <title>Twikey: Senior Java Developer</title>
@@ -91,3 +94,29 @@ def test_jobgether_mapping():
 
 def test_jobgether_mapping_rejects_non_dev():
     assert _map_job({"title": "Marketing Specialist", "company": "Acme"}) is None
+
+
+def test_update_resume_fields(tmp_path, monkeypatch):
+    monkeypatch.setenv("DOTMATCH_SNAPSHOT", str(tmp_path / "store.json"))
+    store = JobStore()
+    assert store.update_resume(skills=["python"]) is None
+
+    store.store_resume(
+        filename="cv.pdf",
+        raw_text="python dev",
+        skills=["python"],
+        job_titles=["backend engineer"],
+        experience_years=3,
+        education=[],
+    )
+    updated = store.update_resume(skills=["python", "go"], education=["BSc Software Engineering"])
+    assert updated is not None
+    assert updated["skills"] == ["python", "go"]
+    assert updated["education"] == ["BSc Software Engineering"]
+    assert updated["job_titles"] == ["backend engineer"]
+    assert updated["experience_years"] == 3
+
+    # Snapshot round-trip preserves the edit.
+    reloaded = JobStore()
+    assert reloaded.get_resume()["skills"] == ["python", "go"]
+    assert os.path.exists(tmp_path / "store.json")
