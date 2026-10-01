@@ -5,7 +5,7 @@ import os
 from adapters.jobgether import _map_job
 from adapters.jobright import _parse_card, _parse_posted_at
 from adapters.weworkremotely import _parse_item, _parse_skills
-from services.job_store import JobStore
+from services.job_store import JobStore, _sanitize_job
 
 WWR_ITEM = """<item>
 <title>Twikey: Senior Java Developer</title>
@@ -120,3 +120,55 @@ def test_update_resume_fields(tmp_path, monkeypatch):
     reloaded = JobStore()
     assert reloaded.get_resume()["skills"] == ["python", "go"]
     assert os.path.exists(tmp_path / "store.json")
+
+
+def test_resumes_are_isolated_per_client(tmp_path, monkeypatch):
+    monkeypatch.setenv("DOTMATCH_SNAPSHOT", str(tmp_path / "store.json"))
+    store = JobStore()
+    base = dict(
+        filename="cv.pdf",
+        raw_text="python dev",
+        skills=["python"],
+        job_titles=["backend engineer"],
+        experience_years=3,
+        education=[],
+    )
+    store.store_resume(**base, client_id="alice")
+    store.store_resume(**{**base, "skills": ["go"]}, client_id="bob")
+
+    assert store.get_resume("alice")["skills"] == ["python"]
+    assert store.get_resume("bob")["skills"] == ["go"]
+    assert store.get_resume("carol") is None
+    assert store.update_resume("alice", skills=["python", "rust"])["skills"] == ["python", "rust"]
+    assert store.get_resume("bob")["skills"] == ["go"]
+
+    # Isolation survives a snapshot round-trip.
+    reloaded = JobStore()
+    assert reloaded.get_resume("alice")["skills"] == ["python", "rust"]
+    assert reloaded.get_resume("bob")["skills"] == ["go"]
+
+
+def test_sanitize_job_coerces_hostile_shapes():
+    job = _sanitize_job({
+        "title": "Android Engineer",
+        "company": {"name": "Acme"},
+        "url": "https://example.test/jobs/1",
+        "employment_type": ["Full-Time"],
+        "experience_level": ["Senior"],
+        "salary_min": "150000",
+        "salary_max": 200000.0,
+        "skills": ["python", 123, None],
+        "remote": 1,
+    })
+    assert job["employment_type"] == "Full-Time"
+    assert job["experience_level"] == "Senior"
+    assert job["salary_min"] == 150000
+    assert job["salary_max"] == 200000
+    assert job["skills"] == ["python", "123"]
+    assert job["remote"] is True
+
+
+def test_sanitize_job_never_raises():
+    empty = _sanitize_job({})
+    assert empty["title"] == "" and empty["remote"] is False
+    assert _sanitize_job({"company": "Acme", "skills": "python"})["company"] == {"name": "Acme"}

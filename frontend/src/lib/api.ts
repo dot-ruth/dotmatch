@@ -1,4 +1,19 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+const CLIENT_ID_KEY = "dotmatch_client_id";
+
+function getClientId(): string {
+  if (typeof window === "undefined") return "default";
+  try {
+    let id = window.localStorage.getItem(CLIENT_ID_KEY);
+    if (!id) {
+      id = window.crypto.randomUUID();
+      window.localStorage.setItem(CLIENT_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return "default";
+  }
+}
 
 class ApiClient {
   private baseUrl: string;
@@ -10,6 +25,7 @@ class ApiClient {
   private async request<T>(endpoint: string, config: RequestInit = {}, timeoutMs = 30000): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = { ...config.headers as Record<string, string> };
+    headers["X-Client-Id"] = getClientId();
     if (!(config.body instanceof FormData)) {
       headers["Content-Type"] = "application/json";
     }

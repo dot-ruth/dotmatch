@@ -22,6 +22,14 @@ async def fetch_jobicy() -> list[dict]:
                     title = item.get("jobTitle", "")
                     if not title or not is_dev_job(title):
                         continue
+                    # jobType arrives as a list (e.g. ["Full-Time"]); jobLevel
+                    # can be the placeholder "Any".
+                    job_type = item.get("jobType")
+                    if isinstance(job_type, list):
+                        job_type = job_type[0] if job_type else None
+                    job_level = item.get("jobLevel")
+                    if job_level == "Any":
+                        job_level = None
                     jobs.append({
                         "title": title,
                         "company": {"name": item.get("companyName", "Unknown")},
@@ -32,8 +40,8 @@ async def fetch_jobicy() -> list[dict]:
                         "url": item.get("url", ""),
                         "description": item.get("jobDescription", ""),
                         "skills": [],
-                        "experience_level": item.get("jobLevel"),
-                        "employment_type": item.get("jobType"),
+                        "experience_level": job_level,
+                        "employment_type": job_type,
                         "source_type": "jobicy",
                         "posted_at": None,
                     })

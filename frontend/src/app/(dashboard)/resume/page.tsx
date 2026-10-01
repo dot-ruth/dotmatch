@@ -17,6 +17,7 @@ export default function ResumePage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [matchesError, setMatchesError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [draftSkills, setDraftSkills] = useState<string[]>([]);
   const [draftRoles, setDraftRoles] = useState<string[]>([]);
@@ -34,17 +35,28 @@ export default function ResumePage() {
 
   async function loadResume() {
     setLoadError(null);
+    setMatchesError(null);
+    let profile: ResumeProfile | null = null;
     try {
-      const profile = await api.getResumeProfile();
+      profile = await api.getResumeProfile();
       setResume(profile);
-      if (profile) {
-        const matched = await api.getMatchedJobs({ limit: 10 });
-        setMatchedJobs(matched);
-      }
     } catch {
-      setLoadError("We couldn't load your resume details or matches. Check your connection and try again.");
+      setLoadError("We couldn't load your resume details. Check your connection and try again.");
     } finally {
       setLoading(false);
+    }
+    if (profile) {
+      await refreshMatches();
+    }
+  }
+
+  async function refreshMatches() {
+    try {
+      const matched = await api.getMatchedJobs({ limit: 10 });
+      setMatchedJobs(matched);
+      setMatchesError(null);
+    } catch {
+      setMatchesError("We couldn't load your job matches right now. Your resume details above are still available.");
     }
   }
 
@@ -55,8 +67,7 @@ export default function ResumePage() {
       const profile = await api.uploadResume(file);
       setResume(profile);
       setEditing(false);
-      const matched = await api.getMatchedJobs({ limit: 10 });
-      setMatchedJobs(matched);
+      await refreshMatches();
     } catch (e) {
       const message = e instanceof Error ? e.message : "Upload failed";
       setError(`We couldn't upload your resume: ${message}`);
@@ -103,9 +114,8 @@ export default function ResumePage() {
         education: draftEdu,
       });
       setResume(updated);
-      const matched = await api.getMatchedJobs({ limit: 10 });
-      setMatchedJobs(matched);
       setEditing(false);
+      await refreshMatches();
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : "Couldn't save your changes.");
     } finally {
@@ -316,6 +326,12 @@ export default function ResumePage() {
           </Card>
 
           {/* Matched Jobs */}
+          {matchesError && (
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300" role="alert">
+              <p className="text-sm">{matchesError}</p>
+              <Button size="sm" variant="secondary" onClick={refreshMatches}>Retry</Button>
+            </div>
+          )}
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-display text-lg font-semibold text-ink dark:text-ink-dark">
               Best Matching Jobs
