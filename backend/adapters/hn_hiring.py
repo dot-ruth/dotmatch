@@ -117,7 +117,7 @@ async def fetch_hn_hiring() -> list[dict]:
                 if not thread:
                     continue
 
-                comment_ids = thread.get("kids", [])[:50]
+                comment_ids = thread.get("kids", [])[:100]
 
                 for cid in comment_ids:
                     comment = await fetch_json(

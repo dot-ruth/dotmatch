@@ -29,7 +29,7 @@ const navLinks = [
 ];
 
 const features = [
-  { t: "All sources, one search", d: "Fourteen boards in a single feed. No tab switching, no duplicate posts." },
+  { t: "All sources, one search", d: "Fifteen boards in a single feed. No tab switching, no duplicate posts." },
   { t: "Sorted by posted date", d: "Newest roles first, measured from the original posting — not the scrape." },
   { t: "Dev roles only", d: "Software engineering, filtered hard. No marketing, no sales, no design." },
   { t: "Salary up front", d: "Ranges shown when listed, so you never apply blind on compensation." },
@@ -50,7 +50,7 @@ const faqs = [
   },
   {
     q: "Where do the jobs come from?",
-    a: "Public remote job boards — fourteen of them, including RemoteOK, We Work Remotely, and Remotive. Every listing links back to the original posting so you always apply at the source.",
+    a: "Public remote job boards — fifteen of them, including RemoteOK, We Work Remotely, and Remotive. Every listing links back to the original posting so you always apply at the source.",
   },
   {
     q: "Do I have to upload my resume?",
@@ -66,7 +66,7 @@ const steps = [
   {
     n: "Step 1",
     t: "Aggregate",
-    d: "Fresh software roles from 14 boards land in one feed. Deduplicated, dev-only, sorted by posted date.",
+    d: "Fresh software roles from 15 boards land in one feed. Deduplicated, dev-only, sorted by posted date.",
     tabBg: "bg-forest/10 dark:bg-forest-muted/15",
     tabText: "text-forest dark:text-forest-muted",
     visual: (
@@ -195,7 +195,7 @@ export default function HomePage() {
             <div>
               <p className="rise rise-1 inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.18em] text-forest dark:text-forest-muted font-bold mb-5">
                 <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-forest dark:bg-forest-muted" />
-                14 sources · one search
+                15 sources · one search
               </p>
               <h1
                 style={{ fontFamily: GROTESK }}
@@ -252,7 +252,7 @@ export default function HomePage() {
               </h1>
 
               <p className="rise rise-3 mt-7 text-[15px] leading-relaxed text-muted dark:text-muted-dark max-w-[420px]">
-                Every remote dev job from 14 boards, ranked against your resume. Free, no login.
+                Every remote dev job from 15 boards, ranked against your resume. Free, no login.
               </p>
 
               <div className="rise rise-4 mt-8 flex items-center gap-4 flex-wrap">

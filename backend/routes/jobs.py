@@ -1,20 +1,15 @@
 import io
 from collections import Counter
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Header
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 
-from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob, JobSourceCount, ResumeProfileUpdate
+from models.schemas import Job, PaginatedJobs, DiscoverResult, ResumeProfile, MatchedJob, JobSourceCount
 from services.job_store import job_store, _is_worldwide
 from services.job_discovery import discover_all_jobs
 from services.resume_service import parse_resume_text, calculate_match_score
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
-
-# Anonymous browser session ID (frontend-generated UUID in localStorage).
-# Keeps each visitor's resume isolated without user accounts.
-ClientId = Annotated[str | None, Header(alias="X-Client-Id")]
 
 
 @router.get("/", response_model=PaginatedJobs)
@@ -43,12 +38,11 @@ async def list_jobs(
 
 @router.get("/matched", response_model=list[MatchedJob])
 async def list_matched_jobs(
-    client_id: ClientId = None,
     limit: int = Query(default=20, ge=1, le=100, description="Max records to return"),
     worldwide_only: bool | None = Query(default=None, description="Filter jobs open worldwide"),
 ):
     """List jobs matched against uploaded resume, sorted by match score."""
-    resume = job_store.get_resume(client_id)
+    resume = job_store.get_resume()
     if not resume:
         raise HTTPException(status_code=404, detail="No resume uploaded. Upload a resume first.")
 
@@ -102,7 +96,7 @@ async def discover_jobs():
 
 
 @router.post("/resume", response_model=ResumeProfile)
-async def upload_resume(client_id: ClientId = None, file: UploadFile = File(...)):
+async def upload_resume(file: UploadFile = File(...)):
     """Upload and parse a resume file."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
@@ -137,21 +131,11 @@ async def upload_resume(client_id: ClientId = None, file: UploadFile = File(...)
         filename=file.filename,
         raw_text=text[:5000],
         **parsed,
-        client_id=client_id,
     )
     return resume
 
 
 @router.get("/resume/profile", response_model=ResumeProfile | None)
-async def get_resume_profile(client_id: ClientId = None):
+async def get_resume_profile():
     """Get the current resume profile."""
-    return job_store.get_resume(client_id)
-
-
-@router.patch("/resume/profile", response_model=ResumeProfile)
-async def update_resume_profile(patch: ResumeProfileUpdate, client_id: ClientId = None):
-    """Update editable resume profile fields (skills, roles, experience, education)."""
-    updated = job_store.update_resume(client_id, **patch.model_dump())
-    if not updated:
-        raise HTTPException(status_code=404, detail="No resume uploaded. Upload a resume first.")
-    return updated
+    return job_store.get_resume()

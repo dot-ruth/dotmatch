@@ -25,40 +25,39 @@ async def fetch_ashby() -> list[dict]:
                 if not data:
                     continue
 
-                for item in data.get("jobs", []):
+                for item in data.get("jobPostings", []):
                     title = item.get("title", "")
                     if not title or not is_dev_job(title):
                         continue
 
-                    location = item.get("location") or ""
-                    is_remote = item.get("isRemote") is True
-                    remote = is_remote or "remote" in title.lower() or "remote" in location.lower()
-                    compensation = item.get("compensation") or {}
+                    location = item.get("locationName", "")
+                    employment = item.get("employmentType", "")
+                    compensation = item.get("compensation", {})
 
                     salary_min = None
                     salary_max = None
-                    try:
-                        if compensation.get("minValue") is not None:
-                            salary_min = int(compensation["minValue"])
-                        if compensation.get("maxValue") is not None:
-                            salary_max = int(compensation["maxValue"])
-                    except (TypeError, ValueError):
-                        pass
+                    if compensation:
+                        salary_min = compensation.get("minValue")
+                        salary_max = compensation.get("maxValue")
+
+                    skills = []
+                    if item.get("skills"):
+                        skills = [s.get("name", "") for s in item["skills"] if s.get("name")]
 
                     jobs.append({
                         "title": title,
                         "company": {"name": slug.replace("-", " ").title()},
                         "location": location or "Remote",
-                        "remote": remote,
-                        "salary_min": salary_min,
-                        "salary_max": salary_max,
-                        "url": item.get("jobUrl") or item.get("applyUrl") or f"https://jobs.ashbyhq.com/{slug}/{item.get('id', '')}",
+                        "remote": "remote" in title.lower() or "remote" in location.lower(),
+                        "salary_min": int(salary_min) if salary_min else None,
+                        "salary_max": int(salary_max) if salary_max else None,
+                        "url": f"https://jobs.ashbyhq.com/{slug}/{item.get('id', '')}",
                         "description": item.get("descriptionPlain", "") or item.get("descriptionHtml", ""),
-                        "skills": [],
-                        "experience_level": item.get("employmentType"),
-                        "employment_type": item.get("employmentType"),
+                        "skills": skills[:10],
+                        "experience_level": employment,
+                        "employment_type": employment,
                         "source_type": "ashby",
-                        "posted_at": parse_iso_date(item.get("publishedAt")),
+                        "posted_at": parse_iso_date(item.get("postedAt")),
                     })
             except Exception:
                 continue

@@ -1,10 +1,10 @@
 # DotMatch
 
-Remote software engineering jobs aggregated from 14 sources into one place.
+Remote software engineering jobs aggregated from 15 sources into one place.
 
 ## What it does
 
-DotMatch scrapes job listings from 14 remote job boards and displays them in a clean, searchable interface. No login required — just click "Discover Jobs" and browse.
+DotMatch scrapes job listings from 15 remote job boards and displays them in a clean, searchable interface. No login required — just click "Discover Jobs" and browse.
 
 **Job Sources:**
 - RemoteOK
@@ -12,15 +12,16 @@ DotMatch scrapes job listings from 14 remote job boards and displays them in a c
 - Remotive
 - Arbeitnow
 - Jobicy
-- Findwork (requires a free `FINDWORK_TOKEN` env var, otherwise skipped)
+- Findwork
+- DevJobsScanner
 - Himalayas
 - FreeHire
 - RemoteJobs.org
 - JobsBase
+- Lever
 - Ashby
+- Torre
 - HN Hiring
-- Jobgether
-- Jobright
 
 All jobs are filtered to show only software engineering roles.
 

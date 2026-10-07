@@ -1,19 +1,4 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
-const CLIENT_ID_KEY = "dotmatch_client_id";
-
-function getClientId(): string {
-  if (typeof window === "undefined") return "default";
-  try {
-    let id = window.localStorage.getItem(CLIENT_ID_KEY);
-    if (!id) {
-      id = window.crypto.randomUUID();
-      window.localStorage.setItem(CLIENT_ID_KEY, id);
-    }
-    return id;
-  } catch {
-    return "default";
-  }
-}
 
 class ApiClient {
   private baseUrl: string;
@@ -22,39 +7,27 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(endpoint: string, config: RequestInit = {}, timeoutMs = 30000): Promise<T> {
+  private async request<T>(endpoint: string, config: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers: Record<string, string> = { ...config.headers as Record<string, string> };
-    headers["X-Client-Id"] = getClientId();
     if (!(config.body instanceof FormData)) {
       headers["Content-Type"] = "application/json";
     }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const response = await fetch(url, { ...config, headers, signal: controller.signal });
+    const response = await fetch(url, { ...config, headers });
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ detail: "An error occurred" }));
-        throw new Error(error.detail || `HTTP ${response.status}`);
-      }
-      return response.json();
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        throw new Error("The server took too long to respond. It may be waking up — please retry.");
-      }
-      throw err;
-    } finally {
-      clearTimeout(timer);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "An error occurred" }));
+      throw new Error(error.detail || `HTTP ${response.status}`);
     }
+    return response.json();
   }
 
-  private get<T>(endpoint: string, timeoutMs?: number): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" }, timeoutMs);
+  private get<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "GET" });
   }
-  private post<T>(endpoint: string, timeoutMs?: number): Promise<T> {
-    return this.request<T>(endpoint, { method: "POST" }, timeoutMs);
+  private post<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "POST" });
   }
 
   async getJobs(params?: Record<string, unknown>) {
@@ -64,8 +37,7 @@ class ApiClient {
     return this.get<Job>(`/api/jobs/${id}`);
   }
   async discoverJobs() {
-    // Discovery scrapes every source and can take a minute or more.
-    return this.post<DiscoverResult>("/api/jobs/discover", 180000);
+    return this.post<DiscoverResult>("/api/jobs/discover");
   }
   async getSourceCounts() {
     return this.get<JobSourceCount[]>("/api/jobs/sources");
@@ -73,13 +45,10 @@ class ApiClient {
   async uploadResume(file: File) {
     const formData = new FormData();
     formData.append("file", file);
-    return this.request<ResumeProfile>("/api/jobs/resume", { method: "POST", body: formData }, 90000);
+    return this.request<ResumeProfile>("/api/jobs/resume", { method: "POST", body: formData });
   }
   async getResumeProfile() {
     return this.get<ResumeProfile | null>("/api/jobs/resume/profile");
-  }
-  async updateResumeProfile(patch: { skills?: string[]; job_titles?: string[]; experience_years?: number | null; education?: string[] }) {
-    return this.request<ResumeProfile>("/api/jobs/resume/profile", { method: "PATCH", body: JSON.stringify(patch) });
   }
   async getMatchedJobs(params?: Record<string, unknown>) {
     return this.get<MatchedJob[]>(`/api/jobs/matched${toQuery(params)}`);

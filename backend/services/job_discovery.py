@@ -7,14 +7,15 @@ from adapters.remotive import fetch_remotive
 from adapters.arbeitnow import fetch_arbeitnow
 from adapters.jobicy import fetch_jobicy
 from adapters.findwork import fetch_findwork
+from adapters.devjobsscanner import fetch_devjobsscanner
 from adapters.himalayas import fetch_himalayas
 from adapters.freehire import fetch_freehire
 from adapters.remotejobs_org import fetch_remotejobs_org
 from adapters.jobsbase import fetch_jobsbase
+from adapters.lever import fetch_lever
 from adapters.ashby import fetch_ashby
+from adapters.torre import fetch_torre
 from adapters.hn_hiring import fetch_hn_hiring
-from adapters.jobgether import fetch_jobgether
-from adapters.jobright import fetch_jobright
 from services.job_store import job_store
 
 logger = logging.getLogger(__name__)
@@ -26,14 +27,15 @@ FETCHERS = [
     ("Arbeitnow", fetch_arbeitnow),
     ("Jobicy", fetch_jobicy),
     ("Findwork", fetch_findwork),
+    ("DevJobsScanner", fetch_devjobsscanner),
     ("Himalayas", fetch_himalayas),
     ("FreeHire", fetch_freehire),
     ("RemoteJobsOrg", fetch_remotejobs_org),
     ("JobsBase", fetch_jobsbase),
+    ("Lever", fetch_lever),
     ("Ashby", fetch_ashby),
+    ("Torre", fetch_torre),
     ("HN Hiring", fetch_hn_hiring),
-    ("Jobgether", fetch_jobgether),
-    ("Jobright", fetch_jobright),
 ]
 
 MAX_CONCURRENT = 5
