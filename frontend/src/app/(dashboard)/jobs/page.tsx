@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, Job, formatDate } from "@/lib/api";
+import { deckFromJobs, saveDeck } from "@/lib/deck";
 import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
@@ -14,6 +15,7 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [worldwideOnly, setWorldwideOnly] = useState(true);
+  const [hideApplied, setHideApplied] = useState(false);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [discovering, setDiscovering] = useState(false);
@@ -24,7 +26,7 @@ export default function JobsPage() {
 
   useEffect(() => {
     loadJobs();
-  }, [page, worldwideOnly]);
+  }, [page, worldwideOnly, hideApplied]);
 
   async function loadJobs() {
     setLoading(true);
@@ -32,11 +34,15 @@ export default function JobsPage() {
     try {
       const params: Record<string, unknown> = { offset: page * limit, limit };
       if (worldwideOnly) params.worldwide_only = true;
+      if (hideApplied) params.hide_applied = true;
       if (searchQuery) params.search_query = searchQuery;
       const res = await api.getJobs(params);
       setJobs(res.items || []);
       setTotal(res.total || 0);
       setLastUpdated(new Date().toLocaleString());
+      if (res.items && res.items.length > 0) {
+        saveDeck(deckFromJobs(res.items.map((j) => j.id), params, res.total || res.items.length));
+      }
     } catch {
       setLoadError("We couldn't load jobs right now. Check your connection and try again.");
     } finally {
@@ -120,6 +126,15 @@ export default function JobsPage() {
               />
               <span className="text-sm text-muted dark:text-muted-dark whitespace-nowrap">Open worldwide / eligible to work from Ethiopia</span>
             </label>
+            <label className="flex items-center gap-2 px-4 py-3 bg-surface-warm dark:bg-surface-dark-warm border border-border dark:border-border-dark rounded-lg cursor-pointer hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-all duration-200" title="Hide jobs you already marked as applied.">
+              <input
+                type="checkbox"
+                checked={hideApplied}
+                onChange={(e) => { setHideApplied(e.target.checked); setPage(0); }}
+                className="w-4 h-4 rounded border-border dark:border-border-dark text-forest dark:text-forest-muted accent-forest dark:accent-forest-muted"
+              />
+              <span className="text-sm text-muted dark:text-muted-dark whitespace-nowrap">Hide jobs I&apos;ve applied to</span>
+            </label>
             <Button type="submit" variant="secondary">
               Search
             </Button>
@@ -147,17 +162,20 @@ export default function JobsPage() {
       )}
 
       {/* Active filters indicator */}
-      {(searchQuery || worldwideOnly) && (
+      {(searchQuery || worldwideOnly || hideApplied) && (
         <div className="flex items-center gap-2 mb-6 animate-fade-in">
           <span className="text-xs text-subtle dark:text-subtle-dark">Filters:</span>
           {worldwideOnly && (
             <Badge variant="forest">Open worldwide</Badge>
           )}
+          {hideApplied && (
+            <Badge variant="forest">Hide applied</Badge>
+          )}
           {searchQuery && (
             <Badge variant="forest">&quot;{searchQuery}&quot;</Badge>
           )}
           <button
-            onClick={() => { setSearchQuery(""); setWorldwideOnly(false); setPage(0); }}
+            onClick={() => { setSearchQuery(""); setWorldwideOnly(false); setHideApplied(false); setPage(0); }}
             className="text-xs text-muted dark:text-muted-dark hover:text-ink dark:hover:text-ink-dark underline transition-colors"
           >
             Clear all

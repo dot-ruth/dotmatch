@@ -1,10 +1,10 @@
 # DotMatch
 
-Remote software engineering jobs aggregated from 15 sources into one place.
+Software engineering jobs aggregated from 15 sources into one place.
 
 ## What it does
 
-DotMatch scrapes job listings from 15 remote job boards and displays them in a clean, searchable interface. No login required — just click "Discover Jobs" and browse.
+DotMatch scrapes job listings from 15 sources (job boards, RSS feeds, and company career pages) and displays them in a clean, searchable interface. No login required — just click "Discover Jobs" and browse.
 
 **Job Sources:**
 - RemoteOK
@@ -23,7 +23,7 @@ DotMatch scrapes job listings from 15 remote job boards and displays them in a c
 - Torre
 - HN Hiring
 
-All jobs are filtered to show only software engineering roles.
+Jobs are filtered toward software engineering roles; rare non-dev strays from source tags can slip through.
 
 ## Tech Stack
 
@@ -47,7 +47,7 @@ dotmatch/
 │   │   ├── arbeitnow.py
 │   │   └── jobicy.py
 │   ├── services/
-│   │   ├── job_store.py     # In-memory job storage
+│   │   ├── job_store.py     # Job storage with JSON snapshot persistence
 │   │   └── job_discovery.py # Orchestrates all adapters
 │   ├── models/
 │   │   └── schemas.py       # Pydantic response models

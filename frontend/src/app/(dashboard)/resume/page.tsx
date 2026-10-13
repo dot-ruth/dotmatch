@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ResumeProfile, MatchedJob } from "@/lib/api";
+import { matchedDeck, saveDeck } from "@/lib/deck";
 import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
@@ -30,11 +31,18 @@ export default function ResumePage() {
       if (profile) {
         const matched = await api.getMatchedJobs({ limit: 10 });
         setMatchedJobs(matched);
+        rememberMatched(matched);
       }
     } catch {
       setLoadError("We couldn't load your resume details or matches. Check your connection and try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function rememberMatched(list: MatchedJob[]) {
+    if (list.length > 0) {
+      saveDeck(matchedDeck(list.map((m) => m.job.id), list.length));
     }
   }
 
@@ -46,6 +54,7 @@ export default function ResumePage() {
       setResume(profile);
       const matched = await api.getMatchedJobs({ limit: 10 });
       setMatchedJobs(matched);
+      rememberMatched(matched);
     } catch (e) {
       const message = e instanceof Error ? e.message : "Upload failed";
       setError(`We couldn't upload your resume: ${message}`);

@@ -92,11 +92,46 @@ class JobStore:
     def get_by_id(self, job_id: str) -> dict | None:
         return self._id_index.get(job_id)
 
+    def find_by_url(self, url: str) -> dict | None:
+        """Find a stored job by its application URL (exact match, then stripped)."""
+        if not url:
+            return None
+        target = url.strip()
+        for job in self._jobs:
+            if (job.get("url") or "").strip() == target:
+                return job
+        stripped = target.rstrip("/")
+        for job in self._jobs:
+            if (job.get("url") or "").strip().rstrip("/") == stripped:
+                return job
+        return None
+
+    def set_applied(self, job_id: str, applied: bool) -> dict | None:
+        """Mark or unmark a job as applied to. Persists the snapshot."""
+        job = self._id_index.get(job_id)
+        if not job:
+            return None
+        if applied:
+            if job.get("applied_at"):
+                return job
+            job["applied_at"] = datetime.now().isoformat()
+        else:
+            if not job.get("applied_at"):
+                return job
+            job.pop("applied_at", None)
+        self._save_snapshot()
+        return job
+
+    def count_applied(self) -> int:
+        return sum(1 for j in self._jobs if j.get("applied_at"))
+
     def search(
         self,
         remote_only: bool | None = None,
         worldwide_only: bool | None = None,
         search_query: str | None = None,
+        hide_applied: bool | None = None,
+        applied_only: bool | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> tuple[list[dict], int]:
@@ -108,6 +143,12 @@ class JobStore:
 
         if worldwide_only:
             filtered = [j for j in filtered if _is_worldwide(j)]
+
+        if hide_applied:
+            filtered = [j for j in filtered if not j.get("applied_at")]
+
+        if applied_only:
+            filtered = [j for j in filtered if j.get("applied_at")]
 
         if search_query:
             query = search_query.lower()

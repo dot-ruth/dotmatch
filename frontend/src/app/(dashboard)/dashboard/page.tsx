@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, Job, formatDate, formatSalary, JobSourceCount } from "@/lib/api";
+import { deckFromJobs, saveDeck } from "@/lib/deck";
 import { JOB_SOURCES as SOURCES } from "@/lib/sources";
 import Card from "@/components/Card";
 import Badge from "@/components/Badge";
@@ -11,6 +12,7 @@ import Button from "@/components/Button";
 export default function DashboardPage() {
   const router = useRouter();
   const [totalJobs, setTotalJobs] = useState(0);
+  const [appliedJobs, setAppliedJobs] = useState(0);
   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [sourceCounts, setSourceCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -26,11 +28,19 @@ export default function DashboardPage() {
   async function loadData() {
     setLoadError(null);
     try {
-      const [res, sourceResults] = await Promise.all([api.getJobs({ limit: 10 }), api.getSourceCounts()]);
+      const [res, sourceResults, appliedRes] = await Promise.all([
+        api.getJobs({ limit: 10 }),
+        api.getSourceCounts(),
+        api.getJobs({ limit: 1, applied_only: true }),
+      ]);
       setTotalJobs(res.total || 0);
+      setAppliedJobs(appliedRes.total || 0);
       setRecentJobs(res.items || []);
       setSourceCounts(toSourceCountMap(sourceResults));
       setLastRefresh(new Date().toLocaleString());
+      if (res.items && res.items.length > 0) {
+        saveDeck(deckFromJobs(res.items.map((j) => j.id), { limit: 10 }, res.total || res.items.length));
+      }
     } catch {
       setLoadError("We couldn't load your job dashboard. Check your connection and try again.");
     } finally {
@@ -59,8 +69,8 @@ export default function DashboardPage() {
       <div className="p-6 lg:p-10">
         <div className="space-y-6">
           <div className="h-8 bg-surface-warm dark:bg-surface-dark-warm rounded-lg w-48 shimmer" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 bg-surface-warm dark:bg-surface-dark-warm rounded-xl shimmer" />
             ))}
           </div>
@@ -106,10 +116,14 @@ export default function DashboardPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         <Card className="p-5">
           <p className="text-sm text-muted dark:text-muted-dark mb-1">Total Jobs</p>
           <p className="font-display text-3xl font-bold text-ink dark:text-ink-dark">{totalJobs}</p>
+        </Card>
+        <Card className="p-5">
+          <p className="text-sm text-muted dark:text-muted-dark mb-1">Applied</p>
+          <p className="font-display text-3xl font-bold text-forest dark:text-forest-muted">{appliedJobs}</p>
         </Card>
         <Card className="p-5">
           <p className="text-sm text-muted dark:text-muted-dark mb-1">Sources</p>
@@ -231,6 +245,7 @@ export default function DashboardPage() {
                     </span>
                   )}
                   <Badge variant="muted">{job.source_type}</Badge>
+                  {job.applied_at && <Badge variant="forest">Applied</Badge>}
                   {posted && (
                     <span className="text-[10px] font-mono text-subtle dark:text-subtle-dark">
                       {posted}

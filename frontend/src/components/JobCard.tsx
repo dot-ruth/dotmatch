@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Job, formatDate, formatSalary } from "@/lib/api";
+import { Job, formatDate, formatSalary, formatDeadline } from "@/lib/api";
+import { requirementsSummary } from "@/lib/jobContent";
 import { scoreClasses } from "./MatchScore";
 import Badge from "./Badge";
 
@@ -16,6 +17,8 @@ export default function JobCard({ job, showMatchScore = false, matchScore, match
   const router = useRouter();
   const salary = formatSalary(job.salary_min, job.salary_max);
   const posted = formatDate(job.posted_at);
+  const deadline = formatDeadline(job.deadline);
+  const summary = requirementsSummary(job);
 
   return (
     <button
@@ -39,6 +42,11 @@ export default function JobCard({ job, showMatchScore = false, matchScore, match
             {job.location && <span className="text-subtle dark:text-subtle-dark"> · {job.location}</span>}
             {job.remote && <span className="text-forest/70 dark:text-forest-muted/70"> · Remote</span>}
           </p>
+          {summary && (
+            <p className="text-[13px] leading-relaxed text-muted dark:text-muted-dark line-clamp-2 mb-2">
+              {summary}
+            </p>
+          )}
           {job.skills && job.skills.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {job.skills.slice(0, 4).map((skill) => (
@@ -70,9 +78,25 @@ export default function JobCard({ job, showMatchScore = false, matchScore, match
             </p>
           )}
           <Badge variant="muted">{job.source_type}</Badge>
+          {job.applied_at && (
+            <p className="mt-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-forest dark:text-forest-muted">
+              Applied
+            </p>
+          )}
           {posted && (
             <p className="text-[10px] font-mono text-subtle dark:text-subtle-dark mt-1.5">
               {posted}
+            </p>
+          )}
+          {deadline && (
+            <p
+              className={`text-[10px] font-mono mt-1 ${
+                deadline.closed
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-ember dark:text-ember-muted"
+              }`}
+            >
+              {deadline.closed ? "Closed" : `closes ${deadline.label}`}
             </p>
           )}
         </div>

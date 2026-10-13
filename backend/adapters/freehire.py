@@ -49,6 +49,7 @@ async def fetch_freehire() -> list[dict]:
                         "employment_type": enrichment.get("employment_type"),
                         "source_type": "freehire",
                         "posted_at": parse_iso_date(item.get("posted_at")),
+                        "deadline": parse_iso_date(item.get("closed_at")),
                     })
             except Exception:
                 continue

@@ -20,6 +20,8 @@ class Job(BaseModel):
     employment_type: str | None
     source_type: str | None
     posted_at: str | None
+    deadline: str | None = None
+    applied_at: str | None = None
     created_at: str
 
 
@@ -51,6 +53,19 @@ class ResumeProfile(BaseModel):
     experience_years: float | None
     education: list[str]
     created_at: str
+
+
+class CoverLetterRequest(BaseModel):
+    job_id: str | None = None
+    url: str | None = None
+    name: str | None = None
+    requirements: list[str] = []
+
+
+class CoverLetterResponse(BaseModel):
+    text: str
+    job_id: str
+    matched_skills: list[str]
 
 
 class MatchedJob(BaseModel):

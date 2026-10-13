@@ -53,6 +53,7 @@ async def fetch_himalayas() -> list[dict]:
                         "employment_type": item.get("employmentType"),
                         "source_type": "himalayas",
                         "posted_at": parse_unix_timestamp(item.get("pubDate")),
+                        "deadline": parse_unix_timestamp(item.get("expiryDate")),
                     })
 
                 total = data.get("totalCount", 0)

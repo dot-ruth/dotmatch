@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ThemeToggle from "@/components/ThemeToggle";
 import Logo from "@/components/Logo";
+import AppliedDrawer, { APPLIED_CHANGED_EVENT } from "@/components/AppliedDrawer";
+import { api } from "@/lib/api";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -16,6 +18,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [appliedOpen, setAppliedOpen] = useState(false);
+  const [appliedCount, setAppliedCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const res = await api.getJobs({ applied_only: true, limit: 1 });
+        if (!cancelled) setAppliedCount(res.total);
+      } catch {
+        /* keep last known count */
+      }
+    };
+    void refresh();
+    const onChange = () => void refresh();
+    window.addEventListener(APPLIED_CHANGED_EVENT, onChange);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(APPLIED_CHANGED_EVENT, onChange);
+    };
+  }, []);
+
+  const handleCountChange = useCallback((n: number) => setAppliedCount(n), []);
+
+  const appliedBadge = appliedCount > 0 ? (
+    <span className="font-mono text-[10px] font-bold tabular-nums min-w-[18px] px-1.5 py-0.5 rounded-full bg-forest dark:bg-forest-muted text-white text-center">
+      {appliedCount}
+    </span>
+  ) : null;
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-surface dark:bg-surface-dark">
@@ -61,6 +92,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {item.label}
               </Link>
             ))}
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setAppliedOpen(true);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted dark:text-muted-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-all duration-200"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="flex-1 text-left">Applied</span>
+              {appliedBadge}
+            </button>
           </nav>
         </div>
       )}
@@ -121,6 +165,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
             );
           })}
+          <button
+            onClick={() => setAppliedOpen(true)}
+            title={collapsed ? "Applied" : undefined}
+            aria-label={collapsed ? `Applied (${appliedCount})` : undefined}
+            className={`w-full flex items-center gap-3 rounded-lg text-sm font-medium text-muted dark:text-muted-dark hover:bg-surface-deep dark:hover:bg-surface-dark-deep transition-all duration-200 ${
+              collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"
+            }`}
+          >
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {!collapsed && <span className="flex-1 text-left">Applied</span>}
+            {appliedBadge}
+          </button>
         </nav>
 
         {/* Footer */}
@@ -139,6 +197,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Page content */}
         <main id="main" className="flex-1 overflow-auto">{children}</main>
       </div>
+
+      <AppliedDrawer
+        open={appliedOpen}
+        onClose={() => setAppliedOpen(false)}
+        onCountChange={handleCountChange}
+      />
     </div>
   );
 }

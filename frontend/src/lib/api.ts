@@ -26,8 +26,11 @@ class ApiClient {
   private get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: "GET" });
   }
-  private post<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "POST" });
+  private post<T>(endpoint: string, body?: unknown): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "POST",
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
   }
 
   async getJobs(params?: Record<string, unknown>) {
@@ -52,6 +55,15 @@ class ApiClient {
   }
   async getMatchedJobs(params?: Record<string, unknown>) {
     return this.get<MatchedJob[]>(`/api/jobs/matched${toQuery(params)}`);
+  }
+  async markApplied(id: string) {
+    return this.post<Job>(`/api/jobs/${id}/apply`);
+  }
+  async unmarkApplied(id: string) {
+    return this.request<Job>(`/api/jobs/${id}/apply`, { method: "DELETE" });
+  }
+  async draftCoverLetter(payload: CoverLetterRequest) {
+    return this.post<CoverLetterResponse>("/api/jobs/cover-letter", payload);
   }
 }
 
@@ -86,6 +98,29 @@ export function formatDate(dateStr: string | null): string | null {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+export function formatDateFull(dateStr: string | null): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+export interface DeadlineInfo {
+  label: string;
+  closed: boolean;
+}
+
+export function formatDeadline(dateStr: string | null): DeadlineInfo | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  const closed = d.getTime() < Date.now();
+  return {
+    label: d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    closed,
+  };
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -101,6 +136,8 @@ export interface Job {
   employment_type: string | null;
   source_type: string | null;
   posted_at: string | null;
+  deadline: string | null;
+  applied_at: string | null;
   created_at: string;
 }
 
@@ -137,5 +174,18 @@ export interface ResumeProfile {
 export interface MatchedJob {
   job: Job;
   match_score: number;
+  matched_skills: string[];
+}
+
+export interface CoverLetterRequest {
+  job_id?: string;
+  url?: string;
+  name?: string;
+  requirements?: string[];
+}
+
+export interface CoverLetterResponse {
+  text: string;
+  job_id: string;
   matched_skills: string[];
 }
