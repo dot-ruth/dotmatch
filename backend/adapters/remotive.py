@@ -20,21 +20,23 @@ async def fetch_remotive() -> list[dict]:
                         continue
 
                     salary_min, salary_max = _parse_salary(item.get("salary", ""))
-                    jobs.append({
-                        "title": title,
-                        "company": {"name": item.get("company_name", "Unknown")},
-                        "location": item.get("candidate_required_location", "Remote"),
-                        "remote": True,
-                        "salary_min": salary_min,
-                        "salary_max": salary_max,
-                        "url": item.get("url", ""),
-                        "description": item.get("description", ""),
-                        "skills": item.get("tags", []),
-                        "experience_level": None,
-                        "employment_type": None,
-                        "source_type": "remotive",
-                        "posted_at": parse_iso_date(item.get("publication_date")),
-                    })
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": {"name": item.get("company_name", "Unknown")},
+                            "location": item.get("candidate_required_location", "Remote"),
+                            "remote": True,
+                            "salary_min": salary_min,
+                            "salary_max": salary_max,
+                            "url": item.get("url", ""),
+                            "description": item.get("description", ""),
+                            "skills": item.get("tags", []),
+                            "experience_level": None,
+                            "employment_type": None,
+                            "source_type": "remotive",
+                            "posted_at": parse_iso_date(item.get("publication_date")),
+                        }
+                    )
             except Exception:
                 pass
 

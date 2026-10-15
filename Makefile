@@ -45,10 +45,13 @@ test-verbose: ## Run tests with verbose output
 
 lint: ## Run linting
 	cd backend && python -m ruff check .
+	cd backend && python -m ruff format --check .
+	cd frontend && npx eslint .
 	cd frontend && npx tsc --noEmit
 
 lint-fix: ## Fix linting issues
 	cd backend && python -m ruff check --fix .
+	cd backend && python -m ruff format .
 
 typecheck: ## Run backend type checking
 	cd backend && python -m mypy .

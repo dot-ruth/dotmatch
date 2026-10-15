@@ -40,7 +40,11 @@ class ApiClient {
     return this.get<Job>(`/api/jobs/${id}`);
   }
   async discoverJobs() {
-    return this.post<DiscoverResult>("/api/jobs/discover");
+    const token = process.env.NEXT_PUBLIC_DISCOVER_TOKEN;
+    return this.request<DiscoverResult>("/api/jobs/discover", {
+      method: "POST",
+      headers: token ? { "X-Discover-Token": token } : {},
+    });
   }
   async getSourceCounts() {
     return this.get<JobSourceCount[]>("/api/jobs/sources");

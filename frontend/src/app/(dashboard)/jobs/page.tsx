@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { api, Job, formatDate } from "@/lib/api";
+import { useCallback, useEffect, useState } from "react";
+import { api, Job } from "@/lib/api";
 import { deckFromJobs, saveDeck } from "@/lib/deck";
-import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import JobCard from "@/components/JobCard";
 
+const PAGE_SIZE = 20;
+
 export default function JobsPage() {
-  const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeQuery, setActiveQuery] = useState("");
   const [worldwideOnly, setWorldwideOnly] = useState(true);
   const [hideApplied, setHideApplied] = useState(false);
   const [page, setPage] = useState(0);
@@ -22,33 +22,35 @@ export default function JobsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [discoverMsg, setDiscoverMsg] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const limit = 20;
+
+  const loadJobs = useCallback(
+    async (query: string) => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const params: Record<string, unknown> = { offset: page * PAGE_SIZE, limit: PAGE_SIZE };
+        if (worldwideOnly) params.worldwide_only = true;
+        if (hideApplied) params.hide_applied = true;
+        if (query) params.search_query = query;
+        const res = await api.getJobs(params);
+        setJobs(res.items || []);
+        setTotal(res.total || 0);
+        setLastUpdated(new Date().toLocaleString());
+        if (res.items && res.items.length > 0) {
+          saveDeck(deckFromJobs(res.items.map((j) => j.id), params, res.total || res.items.length));
+        }
+      } catch {
+        setLoadError("We couldn't load jobs right now. Check your connection and try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, worldwideOnly, hideApplied],
+  );
 
   useEffect(() => {
-    loadJobs();
-  }, [page, worldwideOnly, hideApplied]);
-
-  async function loadJobs() {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const params: Record<string, unknown> = { offset: page * limit, limit };
-      if (worldwideOnly) params.worldwide_only = true;
-      if (hideApplied) params.hide_applied = true;
-      if (searchQuery) params.search_query = searchQuery;
-      const res = await api.getJobs(params);
-      setJobs(res.items || []);
-      setTotal(res.total || 0);
-      setLastUpdated(new Date().toLocaleString());
-      if (res.items && res.items.length > 0) {
-        saveDeck(deckFromJobs(res.items.map((j) => j.id), params, res.total || res.items.length));
-      }
-    } catch {
-      setLoadError("We couldn't load jobs right now. Check your connection and try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
+    void loadJobs(activeQuery);
+  }, [loadJobs, activeQuery]);
 
   async function handleDiscover() {
     setDiscovering(true);
@@ -57,7 +59,7 @@ export default function JobsPage() {
     try {
       const result = await api.discoverJobs();
       setDiscoverMsg(`Found ${result.new_jobs} new jobs from ${result.sources_checked} sources.`);
-      await loadJobs();
+      await loadJobs(activeQuery);
     } catch {
       setLoadError("We couldn't refresh jobs right now. Your existing results are still available.");
     } finally {
@@ -67,8 +69,14 @@ export default function JobsPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (page !== 0) setPage(0);
-    else void loadJobs();
+    if (page !== 0) {
+      setPage(0);
+      setActiveQuery(searchQuery);
+    } else if (searchQuery !== activeQuery) {
+      setActiveQuery(searchQuery);
+    } else {
+      void loadJobs(activeQuery);
+    }
   }
 
   return (
@@ -157,7 +165,7 @@ export default function JobsPage() {
       {loadError && (
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300" role="alert">
           <p className="text-sm">{loadError}</p>
-          <Button size="sm" variant="secondary" onClick={loadJobs}>Retry</Button>
+          <Button size="sm" variant="secondary" onClick={() => void loadJobs(activeQuery)}>Retry</Button>
         </div>
       )}
 
@@ -226,11 +234,11 @@ export default function JobsPage() {
               Previous
             </Button>
             <span className="text-sm font-mono text-subtle dark:text-subtle-dark">
-              {page + 1} / {Math.ceil(total / limit) || 1}
+              {page + 1} / {Math.ceil(total / PAGE_SIZE) || 1}
             </span>
             <Button
               variant="secondary"
-              disabled={(page + 1) * limit >= total}
+              disabled={(page + 1) * PAGE_SIZE >= total}
               onClick={() => setPage(page + 1)}
             >
               Next

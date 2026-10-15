@@ -20,21 +20,23 @@ async def fetch_remoteok() -> list[dict]:
                     title = item.get("position", "")
                     if not is_dev_job(title):
                         continue
-                    jobs.append({
-                        "title": title,
-                        "company": {"name": item.get("company", "Unknown")},
-                        "location": item.get("location", "Remote"),
-                        "remote": True,
-                        "salary_min": item.get("salary_min"),
-                        "salary_max": item.get("salary_max"),
-                        "url": item.get("url", ""),
-                        "description": item.get("description", ""),
-                        "skills": item.get("tags", []),
-                        "experience_level": None,
-                        "employment_type": None,
-                        "source_type": "remoteok",
-                        "posted_at": parse_iso_date(item.get("date")),
-                    })
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": {"name": item.get("company", "Unknown")},
+                            "location": item.get("location", "Remote"),
+                            "remote": True,
+                            "salary_min": item.get("salary_min"),
+                            "salary_max": item.get("salary_max"),
+                            "url": item.get("url", ""),
+                            "description": item.get("description", ""),
+                            "skills": item.get("tags", []),
+                            "experience_level": None,
+                            "employment_type": None,
+                            "source_type": "remoteok",
+                            "posted_at": parse_iso_date(item.get("date")),
+                        }
+                    )
             except Exception:
                 pass
 

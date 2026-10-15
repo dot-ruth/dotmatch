@@ -24,21 +24,23 @@ async def fetch_weworkremotely() -> list[dict]:
                     if not is_dev_job(title):
                         continue
                     posted_at = parse_rfc2822_date(pubdate_match.group(1) if pubdate_match else None)
-                    jobs.append({
-                        "title": title,
-                        "company": {"name": "Unknown"},
-                        "location": "Remote",
-                        "remote": True,
-                        "salary_min": None,
-                        "salary_max": None,
-                        "url": link_match.group(1),
-                        "description": desc_match.group(1) if desc_match else "",
-                        "skills": [],
-                        "experience_level": None,
-                        "employment_type": None,
-                        "source_type": "weworkremotely",
-                        "posted_at": posted_at,
-                    })
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": {"name": "Unknown"},
+                            "location": "Remote",
+                            "remote": True,
+                            "salary_min": None,
+                            "salary_max": None,
+                            "url": link_match.group(1),
+                            "description": desc_match.group(1) if desc_match else "",
+                            "skills": [],
+                            "experience_level": None,
+                            "employment_type": None,
+                            "source_type": "weworkremotely",
+                            "posted_at": posted_at,
+                        }
+                    )
         except Exception:
             pass
 

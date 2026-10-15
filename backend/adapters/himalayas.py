@@ -14,7 +14,8 @@ async def fetch_himalayas() -> list[dict]:
         for _ in range(max_pages):
             try:
                 data = await fetch_json(
-                    client, "GET",
+                    client,
+                    "GET",
                     "https://himalayas.app/jobs/api",
                     params={"limit": limit, "offset": offset},
                 )
@@ -38,22 +39,24 @@ async def fetch_himalayas() -> list[dict]:
 
                     seniority = item.get("seniority", []) or []
 
-                    jobs.append({
-                        "title": title,
-                        "company": {"name": item.get("companyName", "Unknown")},
-                        "location": location,
-                        "remote": True,
-                        "salary_min": int(salary_min) if salary_min else None,
-                        "salary_max": int(salary_max) if salary_max else None,
-                        "url": item.get("applicationLink") or item.get("guid", ""),
-                        "description": item.get("description", "") or item.get("excerpt", ""),
-                        "skills": item.get("categories", []) or [],
-                        "experience_level": seniority[0] if seniority else None,
-                        "employment_type": item.get("employmentType"),
-                        "source_type": "himalayas",
-                        "posted_at": parse_unix_timestamp(item.get("pubDate")),
-                        "deadline": parse_unix_timestamp(item.get("expiryDate")),
-                    })
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": {"name": item.get("companyName", "Unknown")},
+                            "location": location,
+                            "remote": True,
+                            "salary_min": int(salary_min) if salary_min else None,
+                            "salary_max": int(salary_max) if salary_max else None,
+                            "url": item.get("applicationLink") or item.get("guid", ""),
+                            "description": item.get("description", "") or item.get("excerpt", ""),
+                            "skills": item.get("categories", []) or [],
+                            "experience_level": seniority[0] if seniority else None,
+                            "employment_type": item.get("employmentType"),
+                            "source_type": "himalayas",
+                            "posted_at": parse_unix_timestamp(item.get("pubDate")),
+                            "deadline": parse_unix_timestamp(item.get("expiryDate")),
+                        }
+                    )
 
                 total = data.get("totalCount", 0)
                 offset += limit

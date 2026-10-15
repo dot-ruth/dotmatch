@@ -638,7 +638,7 @@ export default function JobDetailPage() {
                     {cover === "open" ? "Regenerate draft" : "Draft a cover letter"}
                   </Button>
                   <span className="text-xs text-subtle dark:text-subtle-dark">
-                    Built from your resume and this posting's requirements — edit before sending.
+                    Built from your resume and this posting&apos;s requirements — edit before sending.
                   </span>
                 </div>
 

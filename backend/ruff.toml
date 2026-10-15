@@ -2,6 +2,20 @@ line-length = 120
 target-version = "py312"
 extend-exclude = [".ruff_cache", "__pycache__", "data"]
 
+[format]
+# These modules hold hand-packed keyword/company tables that are meant to be read as a grid.
+# Formatting them explodes every entry onto its own line, which makes the tables much harder
+# to scan and edit, so they are exempt from `ruff format` (still fully linted and typed).
+exclude = [
+    "adapters/ashby.py",
+    "adapters/common.py",
+    "adapters/freehire.py",
+    "adapters/hn_hiring.py",
+    "adapters/lever.py",
+    "services/job_store.py",
+    "services/resume_service.py",
+]
+
 [lint]
 select = [
     "E4",

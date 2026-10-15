@@ -41,21 +41,25 @@ async def fetch_devjobsscanner() -> list[dict]:
                 location_match = re.search(r"Location:\s*(.*?)(?:<br|<br/>|\n)", description, re.IGNORECASE)
                 location = location_match.group(1).strip() if location_match else "Remote"
 
-                jobs.append({
-                    "title": title,
-                    "company": {"name": company},
-                    "location": location,
-                    "remote": any(w in description.lower() or w in location.lower() for w in ["remote", "worldwide"]),
-                    "salary_min": None,
-                    "salary_max": None,
-                    "url": url,
-                    "description": description,
-                    "skills": skills,
-                    "experience_level": None,
-                    "employment_type": None,
-                    "source_type": "devjobsscanner",
-                    "posted_at": None,
-                })
+                jobs.append(
+                    {
+                        "title": title,
+                        "company": {"name": company},
+                        "location": location,
+                        "remote": any(
+                            w in description.lower() or w in location.lower() for w in ["remote", "worldwide"]
+                        ),
+                        "salary_min": None,
+                        "salary_max": None,
+                        "url": url,
+                        "description": description,
+                        "skills": skills,
+                        "experience_level": None,
+                        "employment_type": None,
+                        "source_type": "devjobsscanner",
+                        "posted_at": None,
+                    }
+                )
         except Exception:
             pass
 

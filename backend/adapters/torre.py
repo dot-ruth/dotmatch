@@ -10,7 +10,8 @@ async def fetch_torre() -> list[dict]:
     async with httpx.AsyncClient(timeout=30) as client:
         try:
             data = await fetch_json(
-                client, "POST",
+                client,
+                "POST",
                 "https://search.torre.co/opportunities/_search/",
                 params={"offset": 0, "size": 100},
                 json={
@@ -51,21 +52,23 @@ async def fetch_torre() -> list[dict]:
                     if name:
                         skills.append(name)
 
-                jobs.append({
-                    "title": objective,
-                    "company": {"name": org.get("name", "Unknown")},
-                    "location": location or "Remote",
-                    "remote": True,
-                    "salary_min": int(salary_min) if salary_min else None,
-                    "salary_max": int(salary_max) if salary_max else None,
-                    "url": f"https://torre.co/en/jobs/{item.get('id', '')}",
-                    "description": item.get("description", ""),
-                    "skills": skills[:10],
-                    "experience_level": None,
-                    "employment_type": "full-time",
-                    "source_type": "torre",
-                    "posted_at": None,
-                })
+                jobs.append(
+                    {
+                        "title": objective,
+                        "company": {"name": org.get("name", "Unknown")},
+                        "location": location or "Remote",
+                        "remote": True,
+                        "salary_min": int(salary_min) if salary_min else None,
+                        "salary_max": int(salary_max) if salary_max else None,
+                        "url": f"https://torre.co/en/jobs/{item.get('id', '')}",
+                        "description": item.get("description", ""),
+                        "skills": skills[:10],
+                        "experience_level": None,
+                        "employment_type": "full-time",
+                        "source_type": "torre",
+                        "posted_at": None,
+                    }
+                )
         except Exception:
             pass
 

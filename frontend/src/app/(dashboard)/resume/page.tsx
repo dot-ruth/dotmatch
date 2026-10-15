@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ResumeProfile, MatchedJob } from "@/lib/api";
 import { matchedDeck, saveDeck } from "@/lib/deck";
@@ -15,15 +15,16 @@ export default function ResumePage() {
   const [resume, setResume] = useState<ResumeProfile | null>(null);
   const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadResume();
+  const rememberMatched = useCallback((list: MatchedJob[]) => {
+    if (list.length > 0) {
+      saveDeck(matchedDeck(list.map((m) => m.job.id), list.length));
+    }
   }, []);
 
-  async function loadResume() {
+  const loadResume = useCallback(async () => {
     setLoadError(null);
     try {
       const profile = await api.getResumeProfile();
@@ -38,16 +39,13 @@ export default function ResumePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [rememberMatched]);
 
-  function rememberMatched(list: MatchedJob[]) {
-    if (list.length > 0) {
-      saveDeck(matchedDeck(list.map((m) => m.job.id), list.length));
-    }
-  }
+  useEffect(() => {
+    void loadResume();
+  }, [loadResume]);
 
   async function handleUpload(file: File) {
-    setUploading(true);
     setError(null);
     try {
       const profile = await api.uploadResume(file);
@@ -59,8 +57,6 @@ export default function ResumePage() {
       const message = e instanceof Error ? e.message : "Upload failed";
       setError(`We couldn't upload your resume: ${message}`);
       throw e;
-    } finally {
-      setUploading(false);
     }
   }
 

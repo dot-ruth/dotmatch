@@ -17,7 +17,8 @@ async def fetch_jobsbase() -> list[dict]:
                     params["cursor"] = cursor
 
                 resp_data = await fetch_json(
-                    client, "GET",
+                    client,
+                    "GET",
                     "https://jobsbase.io/api/v1/jobs",
                     params=params,
                 )
@@ -37,25 +38,29 @@ async def fetch_jobsbase() -> list[dict]:
                     company_name = company.get("name", "Unknown") if isinstance(company, dict) else str(company)
 
                     locations = item.get("locations", []) or []
-                    location = item.get("display_location") or item.get("city") or (locations[0] if locations else "Remote")
+                    location = (
+                        item.get("display_location") or item.get("city") or (locations[0] if locations else "Remote")
+                    )
 
                     skills = item.get("skills", []) or []
 
-                    jobs.append({
-                        "title": title,
-                        "company": {"name": company_name},
-                        "location": location,
-                        "remote": True,
-                        "salary_min": item.get("salary_min"),
-                        "salary_max": item.get("salary_max"),
-                        "url": item.get("job_url", ""),
-                        "description": "",
-                        "skills": skills,
-                        "experience_level": item.get("seniority_level"),
-                        "employment_type": item.get("type"),
-                        "source_type": "jobsbase",
-                        "posted_at": parse_iso_date(item.get("posted_at")),
-                    })
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": {"name": company_name},
+                            "location": location,
+                            "remote": True,
+                            "salary_min": item.get("salary_min"),
+                            "salary_max": item.get("salary_max"),
+                            "url": item.get("job_url", ""),
+                            "description": "",
+                            "skills": skills,
+                            "experience_level": item.get("seniority_level"),
+                            "employment_type": item.get("type"),
+                            "source_type": "jobsbase",
+                            "posted_at": parse_iso_date(item.get("posted_at")),
+                        }
+                    )
 
                 if not resp_data.get("has_more", False):
                     break

@@ -16,24 +16,27 @@ def _fresh_store(tmp_path, monkeypatch):
     return store
 
 
-def _seed(store, title="Backend Engineer", company="Acme",
-          url="https://boards.greenhouse.io/acme/jobs/1"):
-    store.add_jobs([{
-        "title": title,
-        "company": {"name": company},
-        "location": "Worldwide",
-        "remote": True,
-        "salary_min": None,
-        "salary_max": None,
-        "url": url,
-        "description": "We need python and docker.",
-        "skills": ["python", "docker"],
-        "experience_level": None,
-        "employment_type": None,
-        "source_type": "greenhouse",
-        "posted_at": "2026-10-01",
-        "deadline": None,
-    }])
+def _seed(store, title="Backend Engineer", company="Acme", url="https://boards.greenhouse.io/acme/jobs/1"):
+    store.add_jobs(
+        [
+            {
+                "title": title,
+                "company": {"name": company},
+                "location": "Worldwide",
+                "remote": True,
+                "salary_min": None,
+                "salary_max": None,
+                "url": url,
+                "description": "We need python and docker.",
+                "skills": ["python", "docker"],
+                "experience_level": None,
+                "employment_type": None,
+                "source_type": "greenhouse",
+                "posted_at": "2026-10-01",
+                "deadline": None,
+            }
+        ]
+    )
     return store.get_all()[-1]["id"]
 
 
@@ -92,11 +95,14 @@ def test_cover_letter_by_url(tmp_path, monkeypatch):
         education=["BSc Computer Science"],
     )
 
-    resp = client.post("/api/jobs/cover-letter", json={
-        "url": url,
-        "name": "Ruth T.",
-        "requirements": ["5+ years with Python", "Experience with Docker in production"],
-    })
+    resp = client.post(
+        "/api/jobs/cover-letter",
+        json={
+            "url": url,
+            "name": "Ruth T.",
+            "requirements": ["5+ years with Python", "Experience with Docker in production"],
+        },
+    )
     assert resp.status_code == 200
     body = resp.json()
     text = body["text"]

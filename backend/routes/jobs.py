@@ -1,6 +1,8 @@
+import os
+import secrets
 from collections import Counter
 
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Request, UploadFile
 
 from models.schemas import (
     CoverLetterRequest,
@@ -15,6 +17,7 @@ from models.schemas import (
 from services.cover_letter import build_cover_letter
 from services.job_discovery import discover_all_jobs
 from services.job_store import is_worldwide, job_store
+from services.rate_limit import RateLimiter
 from services.resume_service import (
     MAX_RESUME_BYTES,
     SUPPORTED_RESUME_EXTENSIONS,
@@ -24,6 +27,28 @@ from services.resume_service import (
 )
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
+
+_DISCOVER_LIMITER = RateLimiter(max_calls=5, window_seconds=600)
+_LOOPBACK_HOSTS = ("127.0.0.1", "::1")
+
+
+def _authorize_discover(
+    request: Request,
+    x_discover_token: str | None = Header(default=None, alias="X-Discover-Token"),
+) -> None:
+    """Gate discovery behind a shared secret when configured, plus a per-client rate limit."""
+    if not _DISCOVER_LIMITER.check(request.client.host if request.client else "unknown"):
+        raise HTTPException(status_code=429, detail="Discovery rate limit reached. Try again in 10 minutes.")
+
+    token = os.environ.get("DOTMATCH_DISCOVER_TOKEN", "").strip()
+    if token:
+        if not x_discover_token or not secrets.compare_digest(x_discover_token, token):
+            raise HTTPException(status_code=401, detail="Missing or invalid X-Discover-Token header")
+    elif (request.client.host if request.client else "") not in _LOOPBACK_HOSTS:
+        raise HTTPException(
+            status_code=403,
+            detail="Discovery is local-only. Set DOTMATCH_DISCOVER_TOKEN to allow remote runs.",
+        )
 
 
 @router.get("/", response_model=PaginatedJobs)
@@ -71,14 +96,16 @@ async def list_matched_jobs(
             continue
         score, matched_skills = calculate_match_score(job, resume)
         if score > 0:
-            matched.append(MatchedJob(
-                job=Job(**job),
-                match_score=score,
-                matched_skills=matched_skills,
-            ))
+            matched.append(
+                MatchedJob(
+                    job=Job(**job),
+                    match_score=score,
+                    matched_skills=matched_skills,
+                )
+            )
 
     matched.sort(key=lambda m: m.match_score, reverse=True)
-    return matched[offset:offset + limit]
+    return matched[offset : offset + limit]
 
 
 @router.get("/sources", response_model=list[JobSourceCount])
@@ -145,7 +172,7 @@ async def draft_cover_letter(payload: CoverLetterRequest):
     return CoverLetterResponse(text=text, job_id=job["id"], matched_skills=matched)
 
 
-@router.post("/discover", response_model=DiscoverResult)
+@router.post("/discover", response_model=DiscoverResult, dependencies=[Depends(_authorize_discover)])
 async def discover_jobs():
     """Trigger job discovery from all sources."""
     result = await discover_all_jobs()

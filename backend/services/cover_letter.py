@@ -81,13 +81,9 @@ def build_cover_letter(
             + (f" ({score}% match against my resume)." if score else ".")
         )
     elif skills_phrase:
-        lines.append(
-            f"Day to day that means {skills_phrase} — the stack I'm most fluent in."
-        )
+        lines.append(f"Day to day that means {skills_phrase} — the stack I'm most fluent in.")
 
-    lines.append(
-        "I'd welcome the chance to talk about how I can contribute to the team. Thanks for your time."
-    )
+    lines.append("I'd welcome the chance to talk about how I can contribute to the team. Thanks for your time.")
     lines.append("")
     lines.append("Best,")
     lines.append((name or "").strip() or "—")

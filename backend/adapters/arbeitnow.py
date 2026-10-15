@@ -18,21 +18,23 @@ async def fetch_arbeitnow() -> list[dict]:
                     if not is_dev_job(title) and not any(is_dev_job(t) for t in tags):
                         continue
 
-                    jobs.append({
-                        "title": title,
-                        "company": {"name": item.get("company_name", "Unknown")},
-                        "location": item.get("location", "Remote"),
-                        "remote": item.get("remote", False),
-                        "salary_min": None,
-                        "salary_max": None,
-                        "url": item.get("url", ""),
-                        "description": item.get("description", ""),
-                        "skills": tags,
-                        "experience_level": None,
-                        "employment_type": None,
-                        "source_type": "arbeitnow",
-                        "posted_at": parse_unix_timestamp(item.get("created_at")),
-                    })
+                    jobs.append(
+                        {
+                            "title": title,
+                            "company": {"name": item.get("company_name", "Unknown")},
+                            "location": item.get("location", "Remote"),
+                            "remote": item.get("remote", False),
+                            "salary_min": None,
+                            "salary_max": None,
+                            "url": item.get("url", ""),
+                            "description": item.get("description", ""),
+                            "skills": tags,
+                            "experience_level": None,
+                            "employment_type": None,
+                            "source_type": "arbeitnow",
+                            "posted_at": parse_unix_timestamp(item.get("created_at")),
+                        }
+                    )
             except Exception:
                 pass
 

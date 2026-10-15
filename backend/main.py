@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -9,10 +10,23 @@ from routes.jobs import router as jobs_router
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+DEFAULT_CORS_ORIGINS = ("http://localhost:3000", "http://127.0.0.1:3000")
+
+
+def cors_origins() -> list[str]:
+    """Browser origins allowed to call the API. Override with DOTMATCH_CORS_ORIGINS (comma separated, or *)."""
+    configured = os.environ.get("DOTMATCH_CORS_ORIGINS", "").strip()
+    if configured == "*":
+        return ["*"]
+    if configured:
+        return [origin.strip() for origin in configured.split(",") if origin.strip()]
+    return list(DEFAULT_CORS_ORIGINS)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting DotMatch backend")
+    logger.info("CORS origins: %s", ", ".join(cors_origins()))
     yield
 
 
@@ -25,7 +39,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins(),
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
