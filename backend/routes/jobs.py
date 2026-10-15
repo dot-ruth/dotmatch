@@ -1,23 +1,27 @@
-import io
 from collections import Counter
-from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 
 from models.schemas import (
-    Job,
-    PaginatedJobs,
-    DiscoverResult,
-    ResumeProfile,
-    MatchedJob,
-    JobSourceCount,
     CoverLetterRequest,
     CoverLetterResponse,
+    DiscoverResult,
+    Job,
+    JobSourceCount,
+    MatchedJob,
+    PaginatedJobs,
+    ResumeProfile,
 )
-from services.job_store import job_store, _is_worldwide
-from services.job_discovery import discover_all_jobs
-from services.resume_service import parse_resume_text, calculate_match_score
 from services.cover_letter import build_cover_letter
+from services.job_discovery import discover_all_jobs
+from services.job_store import is_worldwide, job_store
+from services.resume_service import (
+    MAX_RESUME_BYTES,
+    SUPPORTED_RESUME_EXTENSIONS,
+    calculate_match_score,
+    extract_resume_text,
+    parse_resume_text,
+)
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -53,6 +57,7 @@ async def list_jobs(
 @router.get("/matched", response_model=list[MatchedJob])
 async def list_matched_jobs(
     limit: int = Query(default=20, ge=1, le=100, description="Max records to return"),
+    offset: int = Query(default=0, ge=0, description="Number of records to skip"),
     worldwide_only: bool | None = Query(default=None, description="Filter jobs open worldwide"),
 ):
     """List jobs matched against uploaded resume, sorted by match score."""
@@ -60,9 +65,10 @@ async def list_matched_jobs(
     if not resume:
         raise HTTPException(status_code=404, detail="No resume uploaded. Upload a resume first.")
 
-    all_jobs = job_store.get_all()
     matched = []
-    for job in all_jobs:
+    for job in job_store.get_all():
+        if worldwide_only and not is_worldwide(job):
+            continue
         score, matched_skills = calculate_match_score(job, resume)
         if score > 0:
             matched.append(MatchedJob(
@@ -71,11 +77,8 @@ async def list_matched_jobs(
                 matched_skills=matched_skills,
             ))
 
-    if worldwide_only:
-        matched = [m for m in matched if _is_worldwide(m.job.model_dump())]
-
     matched.sort(key=lambda m: m.match_score, reverse=True)
-    return matched[:limit]
+    return matched[offset:offset + limit]
 
 
 @router.get("/sources", response_model=list[JobSourceCount])
@@ -161,26 +164,17 @@ async def upload_resume(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="No file provided")
 
     ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
-    if ext not in ("pdf", "doc", "docx", "txt"):
-        raise HTTPException(status_code=400, detail="Only PDF, Word, and text files are supported")
+    if ext not in SUPPORTED_RESUME_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Only PDF, DOCX, and text files are supported")
 
     content = await file.read()
-    if len(content) > 5 * 1024 * 1024:
+    if len(content) > MAX_RESUME_BYTES:
         raise HTTPException(status_code=400, detail="File too large. Maximum size is 5MB.")
 
-    text = ""
-    if ext == "pdf":
-        try:
-            from PyPDF2 import PdfReader
-            reader = PdfReader(io.BytesIO(content))
-            for page in reader.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-        except Exception:
-            raise HTTPException(status_code=400, detail="Failed to parse PDF file")
-    else:
-        text = content.decode("utf-8", errors="ignore")
+    try:
+        text = extract_resume_text(ext, content)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if not text.strip():
         raise HTTPException(status_code=400, detail="Could not extract text from file")

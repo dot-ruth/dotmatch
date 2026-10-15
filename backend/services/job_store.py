@@ -21,7 +21,7 @@ REGION_RESTRICTED = ("remote -", "remote,", "remote us", "remote usa", "remote e
                      "north america", "south america", "europe", "asia pacific")
 
 
-def _is_worldwide(job: dict) -> bool:
+def is_worldwide(job: dict) -> bool:
     """Check if a job is available to work from anywhere (e.g. Ethiopia).
 
     Returns True only for truly worldwide/global remote jobs, not region-restricted ones.
@@ -35,15 +35,13 @@ def _is_worldwide(job: dict) -> bool:
         return True
     if any(kw in location for kw in REGION_RESTRICTED):
         return False
-    if location in ("remote", "anywhere", "global"):
-        return True
-    return False
+    return location in ("remote", "anywhere", "global")
 
 
 class JobStore:
     """In-memory job storage with O(1) dedup and lookup."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._jobs: list[dict] = []
         self._counter = 0
         self._keys: set[str] = set()
@@ -139,10 +137,10 @@ class JobStore:
         filtered = self._jobs
 
         if remote_only is not None:
-            filtered = [j for j in filtered if j["remote"] == remote_only]
+            filtered = [j for j in filtered if bool(j.get("remote")) == remote_only]
 
         if worldwide_only:
-            filtered = [j for j in filtered if _is_worldwide(j)]
+            filtered = [j for j in filtered if is_worldwide(j)]
 
         if hide_applied:
             filtered = [j for j in filtered if not j.get("applied_at")]
@@ -154,9 +152,9 @@ class JobStore:
             query = search_query.lower()
             filtered = [
                 j for j in filtered
-                if query in j["title"].lower()
-                or query in j["company"]["name"].lower()
-                or any(query in s.lower() for s in j.get("skills", []))
+                if query in (j.get("title") or "").lower()
+                or query in ((j.get("company") or {}).get("name") or "").lower()
+                or any(query in s.lower() for s in j.get("skills") or [])
             ]
 
         def _sort_key(j):

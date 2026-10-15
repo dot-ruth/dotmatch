@@ -67,8 +67,8 @@ export default function JobsPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    setPage(0);
-    loadJobs();
+    if (page !== 0) setPage(0);
+    else void loadJobs();
   }
 
   return (

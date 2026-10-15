@@ -1,7 +1,7 @@
 """Shared constants for job adapters."""
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 
@@ -54,7 +54,7 @@ def parse_iso_date(date_str: str | None) -> str | None:
     try:
         dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
         return dt.isoformat()
     except Exception:
         return None
@@ -65,7 +65,7 @@ def parse_unix_timestamp(ts) -> str | None:
     if ts is None:
         return None
     try:
-        dt = datetime.fromtimestamp(float(ts), tz=timezone.utc)
+        dt = datetime.fromtimestamp(float(ts), tz=UTC)
         return dt.isoformat()
     except Exception:
         return None
@@ -79,7 +79,7 @@ def parse_rfc2822_date(date_str: str | None) -> str | None:
         from email.utils import parsedate_to_datetime
         dt = parsedate_to_datetime(date_str)
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+            dt = dt.replace(tzinfo=UTC)
         return dt.isoformat()
     except Exception:
         return None

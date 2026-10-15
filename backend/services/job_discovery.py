@@ -1,21 +1,21 @@
 import asyncio
 import logging
 
-from adapters.remoteok import fetch_remoteok
-from adapters.weworkremotely import fetch_weworkremotely
-from adapters.remotive import fetch_remotive
 from adapters.arbeitnow import fetch_arbeitnow
-from adapters.jobicy import fetch_jobicy
-from adapters.findwork import fetch_findwork
+from adapters.ashby import fetch_ashby
 from adapters.devjobsscanner import fetch_devjobsscanner
-from adapters.himalayas import fetch_himalayas
+from adapters.findwork import fetch_findwork
 from adapters.freehire import fetch_freehire
-from adapters.remotejobs_org import fetch_remotejobs_org
+from adapters.himalayas import fetch_himalayas
+from adapters.hn_hiring import fetch_hn_hiring
+from adapters.jobicy import fetch_jobicy
 from adapters.jobsbase import fetch_jobsbase
 from adapters.lever import fetch_lever
-from adapters.ashby import fetch_ashby
+from adapters.remotejobs_org import fetch_remotejobs_org
+from adapters.remoteok import fetch_remoteok
+from adapters.remotive import fetch_remotive
 from adapters.torre import fetch_torre
-from adapters.hn_hiring import fetch_hn_hiring
+from adapters.weworkremotely import fetch_weworkremotely
 from services.job_store import job_store
 
 logger = logging.getLogger(__name__)

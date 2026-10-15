@@ -1,8 +1,17 @@
+"""Resume parsing: turn raw resume files/text into a structured profile."""
+
+import io
 import logging
 import re
+import zipfile
 from datetime import datetime
+from xml.etree import ElementTree
 
 logger = logging.getLogger(__name__)
+
+SUPPORTED_RESUME_EXTENSIONS = ("pdf", "docx", "txt")
+MAX_RESUME_BYTES = 5 * 1024 * 1024
+DOCX_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 TECH_SKILLS = {
     # Languages
@@ -240,9 +249,12 @@ def extract_job_titles(text: str) -> list[str]:
         lines = text.split("\n")
         for line in lines[:30]:
             line_lower = line.lower().strip()
-            if any(kw in line_lower for kw in ["engineer", "developer", "architect", "lead", "manager"]):
-                if len(line.strip()) < 80 and line.strip() not in titles:
-                    titles.append(line.strip())
+            if (
+                any(kw in line_lower for kw in ["engineer", "developer", "architect", "lead", "manager"])
+                and len(line.strip()) < 80
+                and line.strip() not in titles
+            ):
+                titles.append(line.strip())
 
     seen = set()
     unique = []
@@ -313,6 +325,48 @@ def extract_education(text: str) -> list[str]:
     return found[:5]
 
 
+def extract_text_from_pdf(content: bytes) -> str:
+    """Extract text from a PDF. Raises ValueError when the file cannot be read."""
+    try:
+        from PyPDF2 import PdfReader
+    except ImportError as exc:
+        raise ValueError("PDF support is unavailable") from exc
+    try:
+        reader = PdfReader(io.BytesIO(content))
+        pages = [page.extract_text() or "" for page in reader.pages]
+    except Exception as exc:
+        raise ValueError("Failed to parse PDF file") from exc
+    return "\n".join(pages)
+
+
+def extract_text_from_docx(content: bytes) -> str:
+    """Extract text from a .docx (OOXML zip). Raises ValueError on malformed files."""
+    try:
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            xml = archive.read("word/document.xml")
+        root = ElementTree.fromstring(xml)
+    except Exception as exc:
+        raise ValueError("Failed to parse DOCX file") from exc
+
+    paragraphs = []
+    for paragraph in root.iter(f"{DOCX_NS}p"):
+        text = "".join(node.text or "" for node in paragraph.iter(f"{DOCX_NS}t"))
+        if text.strip():
+            paragraphs.append(text)
+    return "\n".join(paragraphs)
+
+
+def extract_resume_text(ext: str, content: bytes) -> str:
+    """Extract raw text from an uploaded resume. Raises ValueError on failure."""
+    if ext == "pdf":
+        return extract_text_from_pdf(content)
+    if ext == "docx":
+        return extract_text_from_docx(content)
+    if ext == "txt":
+        return content.decode("utf-8", errors="ignore")
+    raise ValueError("Only PDF, DOCX, and text files are supported")
+
+
 def parse_resume_text(text: str) -> dict:
     """Parse resume text and extract structured data."""
     return {
@@ -329,17 +383,15 @@ def calculate_match_score(job: dict, resume: dict) -> tuple[int, list[str]]:
     Strict matching: requires meaningful skill overlap and title relevance.
     Returns (score, matched_skills).
     """
-    resume_skills = set(s.lower() for s in resume.get("skills", []))
-    job_skills = set(s.lower() for s in job.get("skills", []))
+    resume_skills = {s.lower() for s in resume.get("skills", [])}
+    job_skills = {s.lower() for s in job.get("skills", [])}
     job_title = (job.get("title") or "").lower()
     job_desc = (job.get("description") or "").lower()
     all_job_text = f"{job_title} {job_desc}"
 
     matched = []
     for skill in resume_skills:
-        if skill in job_skills:
-            matched.append(skill)
-        elif skill in all_job_text:
+        if skill in job_skills or skill in all_job_text:
             matched.append(skill)
 
     if not resume_skills or len(matched) == 0:

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Company(BaseModel):
@@ -8,21 +8,21 @@ class Company(BaseModel):
 class Job(BaseModel):
     id: str
     title: str
-    company: Company | None
-    location: str | None
-    remote: bool
-    salary_min: int | None
-    salary_max: int | None
-    url: str | None
-    description: str | None
-    skills: list[str]
-    experience_level: str | None
-    employment_type: str | None
-    source_type: str | None
-    posted_at: str | None
+    company: Company | None = None
+    location: str | None = None
+    remote: bool = False
+    salary_min: int | None = None
+    salary_max: int | None = None
+    url: str | None = None
+    description: str | None = None
+    skills: list[str] = []
+    experience_level: str | None = None
+    employment_type: str | None = None
+    source_type: str | None = None
+    posted_at: str | None = None
     deadline: str | None = None
     applied_at: str | None = None
-    created_at: str
+    created_at: str = ""
 
 
 class PaginatedJobs(BaseModel):
@@ -59,7 +59,7 @@ class CoverLetterRequest(BaseModel):
     job_id: str | None = None
     url: str | None = None
     name: str | None = None
-    requirements: list[str] = []
+    requirements: list[str] = Field(default_factory=list)
 
 
 class CoverLetterResponse(BaseModel):

@@ -9,7 +9,7 @@ interface FileUploadProps {
 }
 
 export default function FileUpload({
-  accept = ".pdf,.doc,.docx,.txt",
+  accept = ".pdf,.docx,.txt",
   maxSizeMB = 5,
   onUpload,
 }: FileUploadProps) {
@@ -51,8 +51,8 @@ export default function FileUpload({
     }
 
     const ext = file.name.split(".").pop()?.toLowerCase();
-    if (!["pdf", "doc", "docx", "txt"].includes(ext || "")) {
-      setError("Only PDF, Word, and text files are supported.");
+    if (!["pdf", "docx", "txt"].includes(ext || "")) {
+      setError("Only PDF, DOCX, and text files are supported.");
       return;
     }
 

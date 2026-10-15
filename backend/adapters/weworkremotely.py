@@ -7,7 +7,7 @@ from adapters.common import fetch_text, is_dev_job, parse_rfc2822_date
 
 async def fetch_weworkremotely() -> list[dict]:
     """Fetch software engineering jobs from We Work Remotely RSS."""
-    jobs = []
+    jobs: list[dict] = []
 
     async with httpx.AsyncClient(timeout=30) as client:
         try:

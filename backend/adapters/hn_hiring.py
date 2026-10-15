@@ -1,4 +1,5 @@
 import re
+from datetime import UTC
 
 import httpx
 
@@ -25,10 +26,9 @@ def _parse_hn_item(item: dict) -> dict | None:
     lines = text.split("\n")
     for line in lines[:5]:
         line_stripped = line.strip()
-        if line_stripped and not line_stripped.startswith(("http", "www", "•")):
-            if len(line_stripped) < 100:
-                company = line_stripped.split("|")[0].strip().split("–")[0].strip()
-                break
+        if line_stripped and len(line_stripped) < 100 and not line_stripped.startswith(("http", "www", "•")):
+            company = line_stripped.split("|")[0].strip().split("–")[0].strip()
+            break
 
     skills = []
     tech_keywords = [
@@ -60,8 +60,8 @@ def _parse_hn_item(item: dict) -> dict | None:
 
     posted_at = None
     if item.get("time"):
-        from datetime import datetime, timezone
-        posted_at = datetime.fromtimestamp(item["time"], tz=timezone.utc).isoformat()
+        from datetime import datetime
+        posted_at = datetime.fromtimestamp(item["time"], tz=UTC).isoformat()
 
     return {
         "title": title or "Software Engineer",
@@ -82,7 +82,7 @@ def _parse_hn_item(item: dict) -> dict | None:
 
 async def fetch_hn_hiring() -> list[dict]:
     """Fetch Who is Hiring threads from Hacker News and parse comments for dev jobs."""
-    jobs = []
+    jobs: list[dict] = []
 
     async with httpx.AsyncClient(timeout=20) as client:
         try:

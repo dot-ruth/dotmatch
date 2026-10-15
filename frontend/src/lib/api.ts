@@ -80,8 +80,10 @@ function toQuery(params?: Record<string, unknown>): string {
 export const api = new ApiClient(API_BASE_URL);
 
 export function formatSalary(min: number | null, max: number | null): string | null {
-  if (!min || !max) return null;
-  return `$${(min / 1000).toFixed(0)}k–$${(max / 1000).toFixed(0)}k`;
+  if (min && max) return `$${(min / 1000).toFixed(0)}k–$${(max / 1000).toFixed(0)}k`;
+  if (min) return `$${(min / 1000).toFixed(0)}k+`;
+  if (max) return `up to $${(max / 1000).toFixed(0)}k`;
+  return null;
 }
 
 export function formatDate(dateStr: string | null): string | null {

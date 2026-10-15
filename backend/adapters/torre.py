@@ -5,7 +5,7 @@ from adapters.common import fetch_json, is_dev_job
 
 async def fetch_torre() -> list[dict]:
     """Fetch software engineering jobs from Torre search API."""
-    jobs = []
+    jobs: list[dict] = []
 
     async with httpx.AsyncClient(timeout=30) as client:
         try:

@@ -1,16 +1,16 @@
 """Smoke checks: worldwide filter + match-score thresholds. Run: pytest."""
 
-from services.job_store import _is_worldwide
+from services.job_store import is_worldwide
 from services.resume_service import calculate_match_score
 
 
 def test_worldwide():
-    assert _is_worldwide({"remote": True, "location": "Worldwide"})
-    assert _is_worldwide({"remote": True, "location": ""})
-    assert _is_worldwide({"remote": True, "location": "Remote"})
-    assert not _is_worldwide({"remote": True, "location": "Remote US"})
-    assert not _is_worldwide({"remote": True, "location": "EMEA"})
-    assert not _is_worldwide({"remote": False, "location": "Worldwide"})
+    assert is_worldwide({"remote": True, "location": "Worldwide"})
+    assert is_worldwide({"remote": True, "location": ""})
+    assert is_worldwide({"remote": True, "location": "Remote"})
+    assert not is_worldwide({"remote": True, "location": "Remote US"})
+    assert not is_worldwide({"remote": True, "location": "EMEA"})
+    assert not is_worldwide({"remote": False, "location": "Worldwide"})
 
 
 def test_match_thresholds():

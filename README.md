@@ -82,19 +82,32 @@ dotmatch/
 ### Setup
 
 ```bash
-# Install Python dependencies
-pip install fastapi uvicorn httpx pydantic
+# Install backend dependencies (runtime + dev tooling)
+pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
 # Install frontend dependencies
 cd frontend
 npm install
-
-# Start backend (terminal 1)
 cd ..
-python -m uvicorn backend.main:app --port 8000
+
+# Start backend (terminal 1) — serves http://localhost:8001
+cd backend
+python -m uvicorn main:app --reload --port 8001
 
 # Start frontend (terminal 2)
 cd frontend
 npm run dev
+```
+
+Or use the Makefile: `make install`, then `make dev-backend` (port 8001) and
+`make dev-frontend` (port 3000). The frontend reads `NEXT_PUBLIC_API_URL` from
+`frontend/.env.local` and falls back to `http://localhost:8001`.
+
+### Checks
+
+```bash
+make test    # pytest (backend)
+make lint    # ruff + frontend tsc
+make typecheck
 ```
 

@@ -32,7 +32,6 @@ async def fetch_himalayas() -> list[dict]:
 
                     salary_min = item.get("minSalary")
                     salary_max = item.get("maxSalary")
-                    currency = item.get("currency")
 
                     locations = item.get("locationRestrictions", []) or []
                     location = locations[0] if locations else "Remote"
